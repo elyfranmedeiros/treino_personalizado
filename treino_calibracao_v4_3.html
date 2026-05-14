@@ -1,0 +1,1862 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Treino — Semana de Calibração</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap");
+      :root {
+        --bg: #0f0f0f;
+        --bg2: #161616;
+        --bg3: #1e1e1e;
+        --bg4: #242424;
+        --border: #2a2a2a;
+        --border2: #333;
+        --border3: #3a3a3a;
+        --text: #e8e6e0;
+        --muted: #6b6860;
+        --muted2: #4a4845;
+        --accent: #c8ff47;
+        --accent2: #47b8ff;
+        --accent3: #ff8547;
+        --purple: #a78bfa;
+        --teal: #34d399;
+        --amber: #fbbf24;
+        --red: #f87171;
+        --mono: "DM Mono", monospace;
+        --display: "Syne", sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: var(--mono);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .header {
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 16px 14px;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .header h1 {
+        font-family: var(--display);
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+      .header p {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+      .save-btn {
+        background: var(--accent);
+        color: #0f0f0f;
+        border: none;
+        border-radius: 6px;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        padding: 9px 18px;
+        cursor: pointer;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: opacity 0.15s;
+        flex-shrink: 0;
+      }
+      .save-btn:hover {
+        opacity: 0.85;
+      }
+
+      .main-tabs {
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        padding: 0 16px;
+        display: flex;
+        overflow-x: auto;
+        position: sticky;
+        top: 62px;
+        z-index: 190;
+        -webkit-overflow-scrolling: touch;
+      }
+      .main-tab {
+        font-family: var(--display);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 12px 18px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .main-tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      .main-tab:hover:not(.active) {
+        color: var(--text);
+      }
+
+      .sess-tabs-wrap {
+        background: var(--bg3);
+        border-bottom: 1px solid var(--border);
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        position: sticky;
+        top: 108px;
+        z-index: 180;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .sess-tab {
+        font-family: var(--display);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--muted2);
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .sess-tab.active {
+        color: var(--accent2);
+        border-bottom-color: var(--accent2);
+      }
+      .sess-tab:hover:not(.active) {
+        color: var(--text);
+      }
+      .opt-badge {
+        font-size: 9px;
+        background: var(--bg4);
+        color: var(--muted2);
+        border: 1px solid var(--border2);
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .content {
+        padding: 16px 16px 90px;
+        max-width: 960px;
+      }
+      .main-session {
+        display: none;
+      }
+      .main-session.active {
+        display: block;
+      }
+      .sess-panel {
+        display: none;
+      }
+      .sess-panel.active {
+        display: block;
+      }
+
+      .cal-note {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-left: 3px solid var(--accent);
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+      .cal-note strong {
+        color: var(--accent);
+        font-weight: 500;
+      }
+
+      .block-title {
+        font-family: var(--display);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 22px 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .block-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .ex-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 10px;
+        overflow: hidden;
+        transition: border-color 0.15s;
+      }
+      .ex-card:hover {
+        border-color: var(--border2);
+      }
+      .ex-card .ex-body {
+        display: none;
+      }
+      .ex-card.open .ex-body {
+        display: block;
+      }
+      .ex-head {
+        cursor: pointer;
+        user-select: none;
+      }
+      .ex-head::after {
+        content: "▾";
+        font-size: 14px;
+        color: var(--muted);
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .ex-card.open .ex-head::after {
+        content: "▴";
+      }
+
+      .ex-head {
+        padding: 12px 16px 8px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .ex-num {
+        font-size: 10px;
+        color: var(--muted2);
+        letter-spacing: 0.08em;
+        margin-bottom: 2px;
+      }
+      .ex-name {
+        font-family: var(--display);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.2;
+        margin-bottom: 5px;
+      }
+      .ex-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 3px;
+      }
+      .badge {
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 7px;
+        border-radius: 4px;
+        letter-spacing: 0.03em;
+      }
+      .badge-sets {
+        background: #1e2a1a;
+        color: var(--teal);
+        border: 1px solid #2a3d22;
+      }
+      .badge-strat {
+        background: #1e1a2a;
+        color: var(--purple);
+        border: 1px solid #2d2244;
+      }
+      .badge-adv {
+        background: #2a1e0a;
+        color: var(--amber);
+        border: 1px solid #3d2d0a;
+      }
+      .badge-rest {
+        background: #1e1e1e;
+        color: var(--muted);
+        border: 1px solid var(--border2);
+      }
+
+      /* TARGET INFO BAR */
+      .target-bar {
+        background: var(--bg4);
+        border-top: 1px solid var(--border);
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .target-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+      }
+      .target-label {
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+      .target-val {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .tv-sets {
+        color: var(--teal);
+      }
+      .tv-reps {
+        color: var(--accent2);
+      }
+      .tv-weight {
+        color: var(--accent3);
+      }
+      .tv-sep {
+        color: var(--muted2);
+        font-size: 10px;
+      }
+
+      .ex-sug {
+        text-align: right;
+        min-width: 90px;
+        flex-shrink: 0;
+      }
+      .sug-label {
+        font-size: 9px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+      .sug-mn {
+        font-family: var(--display);
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--accent2);
+        line-height: 1.1;
+      }
+      .sug-mv {
+        font-family: var(--display);
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--accent3);
+        line-height: 1.1;
+      }
+      .sug-unit {
+        font-size: 9px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+
+      .mach-sel {
+        padding: 8px 16px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .mach-label {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+      }
+      .mach-opt {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      .mach-opt input[type="radio"] {
+        display: none;
+      }
+      .mach-pill {
+        font-size: 10px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 16px;
+        border: 1px solid var(--border2);
+        color: var(--muted);
+        background: var(--bg3);
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .mach-opt input[type="radio"]:checked + .mach-pill.mn {
+        background: #0d2235;
+        color: var(--accent2);
+        border-color: var(--accent2);
+      }
+      .mach-opt input[type="radio"]:checked + .mach-pill.mv {
+        background: #2a1500;
+        color: var(--accent3);
+        border-color: var(--accent3);
+      }
+      .mach-opt input[type="radio"]:checked + .mach-pill.cp {
+        background: #1a1a2e;
+        color: var(--purple);
+        border-color: var(--purple);
+      }
+      .mach-opt input[type="radio"]:checked + .mach-pill.sm {
+        background: #1e1a0a;
+        color: var(--amber);
+        border-color: var(--amber);
+      }
+      .mach-opt input[type="radio"]:checked + .mach-pill.ez {
+        background: #0d2a1a;
+        color: var(--teal);
+        border-color: var(--teal);
+      }
+      .mach-opt input[type="radio"]:checked + .mach-pill.w {
+        background: #2a1a2a;
+        color: var(--purple);
+        border-color: var(--purple);
+      }
+      .mach-opt input[type="radio"]:checked + .mach-pill.maq {
+        background: #1a2a0d;
+        color: var(--teal);
+        border-color: var(--teal);
+      }
+      .sug-sel {
+        font-size: 11px;
+        color: var(--muted);
+        margin-left: auto;
+      }
+      .sug-sel span {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      .strat-box {
+        background: var(--bg3);
+        border-top: 1px solid var(--border);
+        padding: 9px 16px;
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .strat-box strong {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      /* SERIES */
+      .series-sec {
+        padding: 10px 16px;
+        border-top: 1px solid var(--border);
+      }
+      .series-hdr {
+        display: grid;
+        grid-template-columns: 38px 110px 1fr 1fr;
+        gap: 6px;
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        margin-bottom: 7px;
+        padding: 0 2px;
+      }
+      .series-row {
+        display: grid;
+        grid-template-columns: 38px 110px 1fr 1fr;
+        gap: 6px;
+        margin-bottom: 6px;
+        align-items: center;
+      }
+      .s-num {
+        font-size: 11px;
+        color: var(--muted2);
+        text-align: center;
+        font-weight: 500;
+      }
+
+      /* Weight input */
+      .s-inp {
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        border-radius: 5px;
+        padding: 7px 8px;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--text);
+        width: 100%;
+        transition: border-color 0.15s;
+        text-align: center;
+      }
+      .s-inp:focus {
+        outline: none;
+        border-color: var(--accent2);
+      }
+      .s-inp::placeholder {
+        color: var(--muted2);
+      }
+      .s-inp.filled {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+      .s-inp.auto-filled {
+        border-color: var(--muted2);
+        color: var(--accent3);
+      }
+      .s-inp.auto-filled.filled {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+
+      /* Select dropdowns */
+      .s-sel {
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        border-radius: 5px;
+        padding: 7px 6px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted2);
+        width: 100%;
+        transition: border-color 0.15s;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        text-align: center;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6860' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 7px center;
+      }
+      .s-sel:focus {
+        outline: none;
+        border-color: var(--accent2);
+      }
+      .s-sel.filled {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+      .s-sel option {
+        background: var(--bg3);
+        color: var(--text);
+      }
+
+      .notes-inp {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 7px 10px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text);
+        resize: vertical;
+        min-height: 38px;
+        margin-top: 6px;
+        transition: border-color 0.15s;
+      }
+      .notes-inp:focus {
+        outline: none;
+        border-color: var(--muted);
+      }
+      .notes-inp::placeholder {
+        color: var(--muted2);
+      }
+
+      /* Compare */
+      .compare-box {
+        border-top: 1px solid var(--border);
+        padding: 8px 16px;
+        background: var(--bg3);
+      }
+      .compare-title {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .compare-grid {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .compare-item {
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--muted);
+      }
+      .ci-label {
+        color: var(--muted2);
+      }
+      .ci-val {
+        font-weight: 500;
+        color: var(--text);
+      }
+      .ci-arrow {
+        font-size: 12px;
+      }
+      .ci-up {
+        color: var(--teal);
+      }
+      .ci-same {
+        color: var(--muted);
+      }
+      .ci-down {
+        color: var(--red);
+      }
+
+      .prog-box {
+        background: var(--bg3);
+        border-top: 1px solid var(--border);
+        padding: 8px 16px;
+        display: flex;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .prog-box strong {
+        color: var(--accent3);
+      }
+
+      .status-bar {
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--muted);
+        z-index: 100;
+      }
+      .pb-wrap {
+        width: 80px;
+        height: 3px;
+        background: var(--border2);
+        border-radius: 2px;
+        display: inline-block;
+        margin: 0 6px;
+        vertical-align: middle;
+      }
+      .pb-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 2px;
+        transition: width 0.3s;
+      }
+      .saved-msg {
+        color: var(--teal);
+        display: none;
+      }
+
+      @media (max-width: 620px) {
+        .ex-sug {
+          display: none;
+        }
+        .series-hdr,
+        .series-row {
+          grid-template-columns: 32px 90px 1fr;
+        }
+        .series-hdr span:last-child,
+        .series-row .s-sel:last-child {
+          display: none;
+        }
+        .sess-tab {
+          padding: 10px 12px;
+          font-size: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <h1>Semana de Calibração</h1>
+        <p>Fase Metabólica · A1/A2/A3 · B1/B2</p>
+      </div>
+      <button class="save-btn" onclick="saveAll()">Guardar</button>
+    </div>
+
+    <div class="main-tabs">
+      <button class="main-tab active" onclick="showMain('a', this)">
+        Treino A
+      </button>
+      <button class="main-tab" onclick="showMain('b', this)">Treino B</button>
+    </div>
+
+    <div class="main-session active" id="main-a">
+      <div class="sess-tabs-wrap">
+        <button class="sess-tab active" onclick="showSess('a', '1', this)">
+          A1 — 1ª sessão
+        </button>
+        <button class="sess-tab" onclick="showSess('a', '2', this)">
+          A2 — 2ª sessão
+        </button>
+        <button class="sess-tab" onclick="showSess('a', '3', this)">
+          A3 — 3ª sessão <span class="opt-badge">opcional</span>
+        </button>
+        <button
+          class="sess-tab"
+          onclick="showSess('a', 'sum', this)"
+          style="margin-left: auto"
+        >
+          Resumo semana A
+        </button>
+      </div>
+      <div id="a-panels"></div>
+      <div class="sess-panel" id="sess-a-sum">
+        <div class="content">
+          <div class="cal-note" style="border-left-color: var(--accent2)">
+            <strong>Resumo Treino A.</strong> Comparação entre sessões
+            preenchidas.
+          </div>
+          <div id="summary-a"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-session" id="main-b">
+      <div class="sess-tabs-wrap">
+        <button class="sess-tab active" onclick="showSess('b', '1', this)">
+          B1 — 1ª sessão
+        </button>
+        <button class="sess-tab" onclick="showSess('b', '2', this)">
+          B2 — 2ª sessão
+        </button>
+        <button
+          class="sess-tab"
+          onclick="showSess('b', 'sum', this)"
+          style="margin-left: auto"
+        >
+          Resumo semana B
+        </button>
+      </div>
+      <div id="b-panels"></div>
+      <div class="sess-panel" id="sess-b-sum">
+        <div class="content">
+          <div class="cal-note" style="border-left-color: var(--accent2)">
+            <strong>Resumo Treino B.</strong> Comparação entre sessões
+            preenchidas.
+          </div>
+          <div id="summary-b"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div>
+        <span id="prog-txt">0 campos preenchidos</span>
+        <span class="pb-wrap"
+          ><span class="pb-fill" id="prog-fill" style="width: 0%"></span
+        ></span>
+      </div>
+      <span class="saved-msg" id="saved-msg">✓ Guardado manualmente</span>
+      <span
+        style="color: var(--teal); font-size: 10px"
+        id="autosave-msg"
+        style="display: none"
+        >● auto-save ativo</span
+      >
+    </div>
+
+    <script>
+      // ─── EXERCISE DATA ────────────────────────────────────────────────────────────
+
+      // repRange: [min, max] for dropdown generation
+      // sugWeight: default weight for S1 (string shown, also used as input value)
+      // setType: normal | lastDrop | partials | lastRP
+
+      const TREINO_A = {
+        blocks: [
+          {
+            title: "Peito",
+            exercises: [
+              {
+                id: "a01",
+                num: "A·01",
+                name: "Supino Inclinado Máquina",
+                sets: 4,
+                repRange: [10, 12],
+                setType: "lastRP",
+                sugWeightDisplay: "45 kg cada lado",
+                sugWeightVal: "45",
+                targetDesc: "4 séries × 10–12 reps · 45 kg cada lado",
+                badges: [
+                  { cls: "badge-sets", txt: "4 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-adv", txt: "⚡ Rest pause · S4" },
+                  { cls: "badge-rest", txt: "75s" },
+                ],
+                sug: { label: "Sugestão", mn: "45 kg", unit: "cada lado" },
+                strat:
+                  "<strong>Estratégia:</strong> mantém até 4×12 com RIR ≥ 2 → +2,5 kg cada lado. <strong>Rest pause S4:</strong> falha → 15s → +3–5 reps → 15s → +2–3 reps.",
+                prog: "Próxima progressão: <strong>47,5 kg cada lado</strong>",
+              },
+              {
+                id: "a02",
+                num: "A·02",
+                name: "Supino Reto",
+                sets: 4,
+                repRange: [10, 12],
+                setType: "normal",
+                sugWeightDisplay: "75 kg (CP) / 30 kg (Smith)",
+                sugWeightVal: "75",
+                targetDesc:
+                  "4 séries × 10–12 reps · Chest Press 75 kg ou Smith 30 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "4 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-rest", txt: "75s" },
+                ],
+                sug: {
+                  label: "Chest Press",
+                  mn: "75 kg",
+                  label2: "Smith",
+                  mv: "30 kg",
+                },
+                mach: {
+                  name: "sr_maq",
+                  opts: [
+                    { v: "cp", cls: "cp", txt: "Chest Press" },
+                    { v: "sm", cls: "sm", txt: "Smith" },
+                  ],
+                  label: "Máquina:",
+                  smap: { cp: "Chest Press → 75 kg", sm: "Smith → 30 kg" },
+                  wmap: { cp: "75", sm: "30" },
+                },
+                strat:
+                  "<strong>Sem técnica avançada</strong> — eccêntrico 3s. CP → +2,5 kg | Smith → +1,25 kg cada lado.",
+                prog: "Chest Press: <strong>77,5 kg</strong> | Smith: <strong>32,5 kg</strong>",
+              },
+              {
+                id: "a03",
+                num: "A·03",
+                name: "Peck Deck / Voador",
+                sets: 3,
+                repRange: [12, 15],
+                setType: "lastDrop",
+                sugWeightDisplay: "23–25 kg (MN) / 35 kg (MV)",
+                sugWeightVal: "24",
+                targetDesc: "3 séries × 12–15 reps · MN 23–25 kg ou MV 35 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 12–15" },
+                  { cls: "badge-strat", txt: "Execução" },
+                  { cls: "badge-adv", txt: "⚡ Dropset · S3" },
+                  { cls: "badge-rest", txt: "60s" },
+                ],
+                sug: { label: "MN", mn: "23–25 kg", label2: "MV", mv: "35 kg" },
+                mach: {
+                  name: "pd_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN — Peck Deck" },
+                    { v: "mv", cls: "mv", txt: "MV — Voador" },
+                  ],
+                  label: "Máquina:",
+                  smap: { mn: "MN → 23–25 kg", mv: "MV → 35 kg" },
+                  wmap: { mn: "24", mv: "35" },
+                },
+                strat:
+                  "<strong>Dropset S3:</strong> após falha técnica reduz 20–25%, +6–8 reps. → +2,5 kg quando 3×15 RIR ≥ 2.",
+                prog: "MN: <strong>25–27,5 kg</strong> | MV: <strong>37,5 kg</strong>",
+              },
+              {
+                id: "a04",
+                num: "A·04",
+                name: "Crossover Polia Baixa",
+                sets: 3,
+                repRange: [13, 15],
+                setType: "normal",
+                sugWeightDisplay: "10–12 kg cada lado",
+                sugWeightVal: "11",
+                targetDesc:
+                  "3 séries × 13–15 reps · 10–12 kg cada lado (exercício novo)",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 13–15" },
+                  { cls: "badge-strat", txt: "Execução" },
+                  { cls: "badge-adv", txt: "⚡ Pump set" },
+                  { cls: "badge-rest", txt: "60s" },
+                ],
+                sug: { label: "MN / MV", mn: "10–12 kg", unit: "cada lado" },
+                mach: {
+                  name: "co_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 10–12 kg cada", mv: "MV → 10–12 kg cada" },
+                  wmap: { mn: "11", mv: "11" },
+                },
+                strat:
+                  "<strong>Polia baixa → trajetória ascendente → ênfase clavicular.</strong> Exercício novo — ajusta pela sensação. → +2,5 kg quando 3×15 RIR ≥ 2.",
+                prog: "Próxima progressão: <strong>+2,5 kg cada lado</strong>",
+              },
+            ],
+          },
+          {
+            title: "Ombros",
+            exercises: [
+              {
+                id: "a05",
+                num: "A·05",
+                name: "Desenvolvimento — Máquina",
+                sets: 3,
+                repRange: [10, 12],
+                setType: "normal",
+                sugWeightDisplay: "40 kg",
+                sugWeightVal: "40",
+                targetDesc: "3 séries × 10–12 reps · 40 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-rest", txt: "75s" },
+                ],
+                sug: { label: "Sugestão", mn: "40 kg" },
+                strat:
+                  "<strong>Sem técnica avançada</strong> — eccêntrico 3s, sem compensação lombar. → +2,5 kg quando 3×12 RIR ≥ 2.",
+                prog: "Próxima progressão: <strong>42,5 kg</strong>",
+              },
+              {
+                id: "a06",
+                num: "A·06",
+                name: "Elevação Lateral com Halteres",
+                sets: 3,
+                repRange: [12, 15],
+                setType: "partials",
+                sugWeightDisplay: "10 kg cada braço",
+                sugWeightVal: "10",
+                targetDesc:
+                  "3 séries × 12–15 reps + parciais · 10 kg cada braço",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 12–15" },
+                  { cls: "badge-strat", txt: "Execução" },
+                  { cls: "badge-adv", txt: "⚡ Parciais no fim" },
+                  { cls: "badge-rest", txt: "60s" },
+                ],
+                sug: { label: "Sugestão", mn: "10 kg", unit: "cada braço" },
+                strat:
+                  "<strong>Parciais:</strong> após reps completas, 4–5 parciais na amplitude inferior (0–45°). Sem balanceio. → +1 kg quando 3×15 RIR ≥ 2.",
+                prog: "Próxima progressão: <strong>11 kg cada braço</strong>",
+              },
+              {
+                id: "a07",
+                num: "A·07",
+                name: "Remada Alta Pegada Larga — Barra W",
+                sets: 3,
+                repRange: [12, 15],
+                setType: "normal",
+                sugWeightDisplay: "27,5 kg total",
+                sugWeightVal: "27.5",
+                targetDesc: "3 séries × 12–15 reps · 27,5 kg total",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 12–15" },
+                  { cls: "badge-strat", txt: "Execução" },
+                  { cls: "badge-adv", txt: "⚡ Pump set" },
+                  { cls: "badge-rest", txt: "60s" },
+                ],
+                sug: { label: "Sugestão", mn: "27,5 kg", unit: "total" },
+                strat:
+                  "<strong>Pump set:</strong> cadência contínua, sem parar entre reps. → +2,5 kg quando 3×15 RIR ≥ 2.",
+                prog: "Próxima progressão: <strong>30 kg total</strong>",
+              },
+            ],
+          },
+          {
+            title: "Tríceps",
+            exercises: [
+              {
+                id: "a08",
+                num: "A·08",
+                name: "Pushdown Barra Reta",
+                sets: 4,
+                repRange: [10, 12],
+                setType: "lastRP",
+                sugWeightDisplay: "47 kg (MN) / 25 kg (MV)",
+                sugWeightVal: "47",
+                targetDesc: "4 séries × 10–12 reps · MN 47 kg ou MV 25 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "4 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-adv", txt: "⚡ Rest pause · S4" },
+                  { cls: "badge-rest", txt: "75s" },
+                ],
+                sug: { label: "MN", mn: "47 kg", label2: "MV", mv: "25 kg" },
+                mach: {
+                  name: "pb_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 47 kg", mv: "MV → 25 kg" },
+                  wmap: { mn: "47", mv: "25" },
+                },
+                strat:
+                  "<strong>Rest pause S4:</strong> falha → 15s → +3–5 reps → 15s → +2–3 reps. → +2,5 kg quando 4×12 RIR ≥ 2.",
+                prog: "MN: <strong>49,5 kg</strong> | MV: <strong>27,5 kg</strong>",
+              },
+              {
+                id: "a09",
+                num: "A·09",
+                name: "Tríceps Overhead — Polia",
+                sets: 3,
+                repRange: [10, 12],
+                setType: "normal",
+                sugWeightDisplay: "17 kg",
+                sugWeightVal: "17",
+                targetDesc: "3 séries × 10–12 reps · 17 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-rest", txt: "60s" },
+                ],
+                sug: { label: "Sugestão", mn: "17 kg" },
+                mach: {
+                  name: "to_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 17 kg", mv: "MV — ajusta pela sensação" },
+                  wmap: { mn: "17", mv: "" },
+                },
+                strat:
+                  "<strong>Sem técnica avançada.</strong> Amplitude completa, cotovelos fixos, eccêntrico controlado. → +2,5 kg quando 3×12 RIR ≥ 2.",
+                prog: "Próxima progressão: <strong>19,5 kg</strong>",
+              },
+              {
+                id: "a10",
+                num: "A·10",
+                name: "Tríceps Unilateral — Polia",
+                sets: 3,
+                repRange: [13, 15],
+                setType: "normal",
+                sugWeightDisplay: "15 kg (MN) / 9 kg (MV)",
+                sugWeightVal: "15",
+                targetDesc: "3 séries × 13–15 reps · MN 15 kg ou MV 9 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 13–15" },
+                  { cls: "badge-strat", txt: "Execução" },
+                  { cls: "badge-adv", txt: "⚡ Pump set" },
+                  { cls: "badge-rest", txt: "45s" },
+                ],
+                sug: { label: "MN", mn: "15 kg", label2: "MV", mv: "9 kg" },
+                mach: {
+                  name: "tu_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 15 kg", mv: "MV → 9 kg" },
+                  wmap: { mn: "15", mv: "9" },
+                },
+                strat:
+                  "<strong>Pump set:</strong> cadência 2-1-2, squeeze máximo. → MN: +2,5 kg | MV: +1 kg (quando 3×15 RIR ≥ 2).",
+                prog: "MN: <strong>17,5 kg</strong> | MV: <strong>10 kg</strong>",
+              },
+            ],
+          },
+        ],
+      };
+
+      const TREINO_B = {
+        blocks: [
+          {
+            title: "Costas",
+            exercises: [
+              {
+                id: "b01",
+                num: "B·01",
+                name: "Puxada Aberta (Pulldown)",
+                sets: 4,
+                repRange: [10, 12],
+                setType: "lastRP",
+                sugWeightDisplay: "62 kg (MN) / 68 kg (MV)",
+                sugWeightVal: "62",
+                targetDesc: "4 séries × 10–12 reps · MN 62 kg ou MV 68 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "4 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-adv", txt: "⚡ Rest pause · S4" },
+                  { cls: "badge-rest", txt: "75s" },
+                ],
+                sug: { label: "MN", mn: "62 kg", label2: "MV", mv: "68 kg" },
+                mach: {
+                  name: "pa_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 62 kg", mv: "MV → 68 kg" },
+                  wmap: { mn: "62", mv: "68" },
+                },
+                strat:
+                  "<strong>Rest pause S4:</strong> falha → 15s → +3–4 reps. Eccêntrico 3s. → +5 kg quando 4×12 RIR ≥ 2.",
+                prog: "MN: <strong>67 kg</strong> | MV: <strong>73 kg</strong>",
+              },
+              {
+                id: "b02",
+                num: "B·02",
+                name: "Remada Máquina (chest supported)",
+                sets: 4,
+                repRange: [10, 12],
+                setType: "normal",
+                sugWeightDisplay: "50–55 kg",
+                sugWeightVal: "52",
+                targetDesc:
+                  "4 séries × 10–12 reps · ~50–55 kg (exercício novo)",
+                badges: [
+                  { cls: "badge-sets", txt: "4 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-rest", txt: "75s" },
+                ],
+                sug: {
+                  label: "Sugestão",
+                  mn: "50–55 kg",
+                  unit: "exercício novo",
+                },
+                strat:
+                  "<strong>Exercício novo — ajusta livremente.</strong> Retração escapular completa. Sem técnica avançada. → +2,5 kg quando 4×12 RIR ≥ 2.",
+                prog: "Próxima progressão: <strong>+2,5 kg</strong>",
+              },
+              {
+                id: "b03",
+                num: "B·03",
+                name: "Remada Baixa Polia (pegada neutra)",
+                sets: 3,
+                repRange: [12, 15],
+                setType: "lastDrop",
+                sugWeightDisplay: "33 kg (MN) / 16 kg (MV)",
+                sugWeightVal: "33",
+                targetDesc: "3 séries × 12–15 reps · MN 33 kg ou MV 16 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 12–15" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-adv", txt: "⚡ Dropset · S3" },
+                  { cls: "badge-rest", txt: "60s" },
+                ],
+                sug: { label: "MN", mn: "33 kg", label2: "MV", mv: "16 kg" },
+                mach: {
+                  name: "rb_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 33 kg", mv: "MV → 16 kg" },
+                  wmap: { mn: "33", mv: "16" },
+                },
+                strat:
+                  "<strong>Dropset S3:</strong> reduz 20% após falha técnica, +6–8 reps. Sem soltar o cabo. → +2,5 kg quando 3×15 RIR ≥ 2.",
+                prog: "MN: <strong>35,5 kg</strong> | MV: <strong>18,5 kg</strong>",
+              },
+              {
+                id: "b04",
+                num: "B·04",
+                name: "Pulldown Braço Estendido (Straight Arm)",
+                sets: 3,
+                repRange: [13, 15],
+                setType: "normal",
+                sugWeightDisplay: "35 kg (MN) / 17 kg (MV)",
+                sugWeightVal: "35",
+                targetDesc: "3 séries × 13–15 reps · MN 35 kg ou MV 17 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 13–15" },
+                  { cls: "badge-strat", txt: "Execução" },
+                  { cls: "badge-adv", txt: "⚡ Pump set" },
+                  { cls: "badge-rest", txt: "45s" },
+                ],
+                sug: { label: "MN", mn: "35 kg", label2: "MV", mv: "17 kg" },
+                mach: {
+                  name: "be_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 35 kg", mv: "MV → 17 kg" },
+                  wmap: { mn: "35", mv: "17" },
+                },
+                strat:
+                  "<strong>Pump set:</strong> sem dobrar o cotovelo. Cadência contínua. → +2,5 kg quando 3×15 RIR ≥ 2.",
+                prog: "MN: <strong>37,5 kg</strong> | MV: <strong>19,5 kg</strong>",
+              },
+            ],
+          },
+          {
+            title: "Bíceps",
+            exercises: [
+              {
+                id: "b05",
+                num: "B·05",
+                name: "Rosca Direta — Barra EZ / Barra W",
+                sets: 4,
+                repRange: [10, 12],
+                setType: "lastRP",
+                sugWeightDisplay: "40 kg (MN) / 24 kg (MV)",
+                sugWeightVal: "24",
+                targetDesc: "4 séries × 10–12 reps · MV ~24 kg ou MN ~40 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "4 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-adv", txt: "⚡ Rest pause · S4" },
+                  { cls: "badge-rest", txt: "75s" },
+                ],
+                sug: {
+                  label: "MV ref.",
+                  mn: "24 kg",
+                  label2: "MN ref.",
+                  mv: "40 kg",
+                },
+                mach: {
+                  name: "rd_bar",
+                  opts: [
+                    { v: "ez", cls: "ez", txt: "Barra EZ" },
+                    { v: "w", cls: "w", txt: "Barra W" },
+                  ],
+                  label: "Barra:",
+                  smap: { ez: "EZ selecionada", w: "Barra W selecionada" },
+                  wmap: { ez: "", w: "" },
+                  name2: "rd_maq",
+                  opts2: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label2: "Academia:",
+                  smap2: { mn: "MN → ref. 40 kg", mv: "MV → ref. 24 kg" },
+                  wmap2: { mn: "40", mv: "24" },
+                },
+                strat:
+                  "<strong>Rest pause S4:</strong> falha → 15s → +3–4 reps. Punho neutro. → +2,5 kg quando 4×12 RIR ≥ 2.",
+                prog: "Próxima progressão: <strong>+2,5 kg</strong>",
+              },
+              {
+                id: "b06",
+                num: "B·06",
+                name: "Rosca Inclinada — Halteres / Polia",
+                sets: 3,
+                repRange: [10, 12],
+                setType: "partials",
+                sugWeightDisplay: "11 kg (halter) / 9 kg (polia)",
+                sugWeightVal: "11",
+                targetDesc:
+                  "3 séries × 10–12 reps + parciais · Halter 11 kg ou Polia 9 kg cada",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 10–12" },
+                  { cls: "badge-strat", txt: "Reps" },
+                  { cls: "badge-adv", txt: "⚡ Parciais no fim" },
+                  { cls: "badge-rest", txt: "60s" },
+                ],
+                sug: {
+                  label: "Halteres",
+                  mn: "11 kg",
+                  label2: "Polia",
+                  mv: "9 kg",
+                  unit: "cada braço",
+                },
+                mach: {
+                  name: "ri_eq",
+                  opts: [
+                    { v: "maq", cls: "maq", txt: "Halteres" },
+                    { v: "mn", cls: "mn", txt: "Polia MN" },
+                    { v: "mv", cls: "mv", txt: "Polia MV" },
+                  ],
+                  label: "Equipamento:",
+                  smap: {
+                    maq: "Halteres → 11 kg cada",
+                    mn: "Polia MN → 9 kg cada",
+                    mv: "Polia MV → 9 kg cada",
+                  },
+                  wmap: { maq: "11", mn: "9", mv: "9" },
+                },
+                strat:
+                  "<strong>Parciais:</strong> após reps completas, 3–4 parciais na amplitude inferior (cabeça longa). → +1 kg quando 3×12 RIR ≥ 2.",
+                prog: "Halteres: <strong>12 kg</strong> | Polia: <strong>10 kg cada</strong>",
+              },
+              {
+                id: "b07",
+                num: "B·07",
+                name: "Rosca Martelo — Polia Corda",
+                sets: 3,
+                repRange: [13, 15],
+                setType: "normal",
+                sugWeightDisplay: "35 kg (MN) / 17 kg (MV)",
+                sugWeightVal: "35",
+                targetDesc: "3 séries × 13–15 reps · MN 35 kg ou MV 17 kg",
+                badges: [
+                  { cls: "badge-sets", txt: "3 × 13–15" },
+                  { cls: "badge-strat", txt: "Execução" },
+                  { cls: "badge-adv", txt: "⚡ Pump set" },
+                  { cls: "badge-rest", txt: "45s" },
+                ],
+                sug: { label: "MN", mn: "35 kg", label2: "MV", mv: "17 kg" },
+                mach: {
+                  name: "rm_maq",
+                  opts: [
+                    { v: "mn", cls: "mn", txt: "MN" },
+                    { v: "mv", cls: "mv", txt: "MV" },
+                  ],
+                  label: "Polia:",
+                  smap: { mn: "MN → 35 kg", mv: "MV → 17 kg" },
+                  wmap: { mn: "35", mv: "17" },
+                },
+                strat:
+                  "<strong>Pump set:</strong> cadência contínua. Foco no braquial. → +2,5 kg quando 3×15 RIR ≥ 2.",
+                prog: "MN: <strong>37,5 kg</strong> | MV: <strong>19,5 kg</strong>",
+              },
+            ],
+          },
+        ],
+      };
+
+      // ─── DROPDOWN GENERATORS ─────────────────────────────────────────────────────
+
+      function repsOptions(min, max, isLastRP, isPartials, isDrop) {
+        let opts = '<option value="">— reps</option>';
+        if (isLastRP) {
+          // rest pause format
+          opts += '<option value="rp_fail">Falha técnica</option>';
+          for (let r = min; r <= max; r++)
+            opts += `<option value="${r}">${r}</option>`;
+          opts +=
+            '<option value="rp_custom">Personalizado (ex: 10+4+2)</option>';
+        } else if (isPartials) {
+          for (let r = min; r <= max; r++) {
+            for (let p = 2; p <= 6; p++)
+              opts += `<option value="${r}+${p}p">${r} + ${p} parciais</option>`;
+          }
+          for (let r = min; r <= max; r++)
+            opts += `<option value="${r}_only">${r} (sem parciais)</option>`;
+        } else if (isDrop) {
+          for (let r = min; r <= max; r++) {
+            for (let d = 4; d <= 10; d += 2)
+              opts += `<option value="${r}+${d}d">${r} + ${d} drop</option>`;
+          }
+          for (let r = min; r <= max; r++)
+            opts += `<option value="${r}_nd">${r} (sem drop)</option>`;
+        } else {
+          for (let r = min; r <= max; r++)
+            opts += `<option value="${r}">${r}</option>`;
+        }
+        return opts;
+      }
+
+      function sensOptions() {
+        return `<option value="">— sensação</option>
+  <option value="facil">Fácil — RIR ≥ 3</option>
+  <option value="ok">Ok — RIR ~2</option>
+  <option value="dificil">Difícil — RIR ~1</option>
+  <option value="falha">Falha — RIR 0</option>`;
+      }
+
+      // ─── BUILD SERIES ─────────────────────────────────────────────────────────────
+
+      function buildSeries(ex, sess) {
+        const { sets, repRange, setType, sugWeightVal } = ex;
+        const [rMin, rMax] = repRange;
+        let rows = "";
+
+        for (let s = 1; s <= sets; s++) {
+          const isLast = s === sets;
+          const isRP = setType === "lastRP" && isLast;
+          const isDrop = setType === "lastDrop" && isLast;
+          const isPartial = setType === "partials";
+          const sLabel = isRP ? `S${s} ⚡` : `S${s}`;
+
+          const wKey = `${sess}_${ex.id}_s${s}_w`;
+          const rKey = `${sess}_${ex.id}_s${s}_r`;
+          const fKey = `${sess}_${ex.id}_s${s}_f`;
+
+          // Auto-fill S1 weight
+          const autoVal = s === 1 ? sugWeightVal : "";
+          const autoCls = s === 1 ? "auto-filled" : "";
+
+          const rOpts = repsOptions(rMin, rMax, isRP, isPartial, isDrop);
+
+          rows += `
+    <div class="series-row">
+      <div class="s-num">${sLabel}</div>
+      <input class="s-inp ${autoCls}" id="${wKey}" data-key="${wKey}" type="number" value="${autoVal}" step="0.5" oninput="mf(this);up()">
+      <select class="s-sel" id="${rKey}" data-key="${rKey}" onchange="mfSel(this);up()">${rOpts}</select>
+      <select class="s-sel" id="${fKey}" data-key="${fKey}" onchange="mfSel(this)">${sensOptions()}</select>
+    </div>`;
+        }
+        return rows;
+      }
+
+      // ─── BUILD MACHINE SELECTOR ───────────────────────────────────────────────────
+
+      // Global registry for machine maps — avoids JSON injection in HTML attributes
+      const MACH_REGISTRY = {};
+
+      function buildMach(ex, sess) {
+        if (!ex.mach) return "";
+        const m = ex.mach;
+        const sid = sess + "_" + ex.id;
+        // Store maps in global registry keyed by sid
+        MACH_REGISTRY[sid] = { smap: m.smap || {}, wmap: m.wmap || {} };
+        if (m.name2)
+          MACH_REGISTRY[sid + "b"] = {
+            smap: m.smap2 || {},
+            wmap: m.wmap2 || {},
+          };
+
+        let opts = m.opts
+          .map(
+            (o) => `
+    <label class="mach-opt">
+      <input type="radio" name="${sess}_${m.name}" value="${o.v}"
+        onchange="onMach('${sid}','${o.v}','${sess}','${ex.id}')">
+      <span class="mach-pill ${o.cls}">${o.txt}</span>
+    </label>`,
+          )
+          .join("");
+
+        let extra = "";
+        if (m.name2) {
+          extra =
+            `<span class="mach-label" style="margin-left:10px">${m.label2}</span>` +
+            m.opts2
+              .map(
+                (o) => `
+      <label class="mach-opt">
+        <input type="radio" name="${sess}_${m.name2}" value="${o.v}"
+          onchange="onMach('${sid}b','${o.v}','${sess}','${ex.id}')">
+        <span class="mach-pill ${o.cls}">${o.txt}</span>
+      </label>`,
+              )
+              .join("");
+        }
+        return `<div class="mach-sel">
+    <span class="mach-label">${m.label}</span>${opts}${extra}
+    <span class="sug-sel" id="sug-${sid}">Seleciona</span>
+  </div>`;
+      }
+
+      function onMach(sid, val, sess, exId) {
+        const reg = MACH_REGISTRY[sid];
+        if (!reg) return;
+        // Update display label
+        const el = document.getElementById("sug-" + sid);
+        if (el && reg.smap[val])
+          el.innerHTML = "<span>" + reg.smap[val] + "</span>";
+        // Update S1 weight
+        if (reg.wmap[val] && reg.wmap[val] !== "") {
+          const s1 = document.getElementById(sess + "_" + exId + "_s1_w");
+          if (s1) {
+            s1.value = reg.wmap[val];
+            s1.classList.remove("filled");
+            s1.classList.add("auto-filled");
+            autoSave();
+          }
+        }
+      }
+
+      // ─── BUILD EXERCISE ───────────────────────────────────────────────────────────
+
+      function buildExercise(ex, sess) {
+        const badges = ex.badges
+          .map((b) => `<span class="badge ${b.cls}">${b.txt}</span>`)
+          .join("");
+        const s = ex.sug;
+        let sugHtml = `<div class="sug-label">${s.label}</div><div class="sug-mn">${s.mn}</div>`;
+        if (s.label2)
+          sugHtml += `<div class="sug-label" style="margin-top:3px">${s.label2}</div><div class="sug-mv">${s.mv}</div>`;
+        if (s.unit) sugHtml += `<div class="sug-unit">${s.unit}</div>`;
+
+        return `
+  <div class="ex-card" id="card-${sess}-${ex.id}">
+    <div class="ex-head" onclick="this.parentElement.classList.toggle('open')">
+      <div style="flex:1">
+        <div class="ex-num">${ex.num}</div>
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-meta">${badges}</div>
+      </div>
+      <div class="ex-sug">${sugHtml}</div>
+    </div>
+    <div class="ex-body">
+      <div class="target-bar">
+        <div class="target-item">
+          <span class="target-label">Séries</span>
+          <span class="target-val tv-sets">${ex.sets}×</span>
+        </div>
+        <span class="tv-sep">·</span>
+        <div class="target-item">
+          <span class="target-label">Reps alvo</span>
+          <span class="target-val tv-reps">${ex.repRange[0]}–${ex.repRange[1]}</span>
+        </div>
+        <span class="tv-sep">·</span>
+        <div class="target-item">
+          <span class="target-label">Peso sugerido</span>
+          <span class="target-val tv-weight">${ex.sugWeightDisplay}</span>
+        </div>
+      </div>
+      ${buildMach(ex, sess)}
+      <div class="strat-box">${ex.strat}</div>
+      <div class="series-sec">
+        <div class="series-hdr"><span></span><span>Peso (kg)</span><span>Reps</span><span>Sensação</span></div>
+        ${buildSeries(ex, sess)}
+        <textarea class="notes-inp" id="${sess}_${ex.id}_notes" data-key="${sess}_${ex.id}_notes" placeholder="Notas..."></textarea>
+      </div>
+      <div class="compare-box" id="cmp-${sess}-${ex.id}" style="display:none">
+        <div class="compare-title">Comparação com sessão anterior</div>
+        <div class="compare-grid" id="cmpgrid-${sess}-${ex.id}"></div>
+      </div>
+      <div class="prog-box"><span style="color:var(--accent3);margin-right:4px">→</span><span>${ex.prog}</span></div>
+    </div>
+  </div>`;
+      }
+
+      // ─── BUILD SESSION ────────────────────────────────────────────────────────────
+
+      function buildSession(treino, sessKey) {
+        const notes = {
+          a_1: "<strong>A1 — Primeira sessão.</strong> Peso S1 pré-preenchido com o valor sugerido — ajusta se necessário. Seleciona as reps e sensação nos dropdowns.",
+          a_2: "<strong>A2 — Segunda sessão.</strong> Peso S1 pré-preenchido com o sugerido. O comparativo com A1 aparece automaticamente nos exercícios.",
+          a_3: "<strong>A3 — Terceira sessão (opcional).</strong> Mais um ponto de dados para calibração.",
+          b_1: "<strong>B1 — Primeira sessão.</strong> Peso S1 pré-preenchido com o valor sugerido.",
+          b_2: "<strong>B2 — Segunda sessão.</strong> O comparativo com B1 aparece automaticamente.",
+        };
+        let html = `<div class="sess-panel" id="sess-${sessKey}"><div class="content">`;
+        html += `<div class="cal-note">${notes[sessKey] || ""}</div>`;
+        treino.blocks.forEach((b) => {
+          html += `<div class="block-title">${b.title}</div>`;
+          b.exercises.forEach((ex) => {
+            html += buildExercise(ex, sessKey);
+          });
+        });
+        html += "</div></div>";
+        return html;
+      }
+
+      // ─── RENDER ───────────────────────────────────────────────────────────────────
+
+      // These must be global and defined BEFORE innerHTML is set
+      function mf(input) {
+        input.classList.toggle("filled", input.value.trim() !== "");
+      }
+      function mfSel(sel) {
+        sel.classList.toggle("filled", sel.value !== "");
+      }
+
+      function up() {
+        const all = document.querySelectorAll(".s-inp, .s-sel");
+        const filled = document.querySelectorAll(
+          ".s-inp.filled, .s-sel.filled",
+        );
+        const pct = Math.round((filled.length / all.length) * 100);
+        document.getElementById("prog-fill").style.width = pct + "%";
+        document.getElementById("prog-txt").textContent =
+          filled.length + " de " + all.length + " campos preenchidos";
+      }
+
+      document.getElementById("a-panels").innerHTML =
+        buildSession(TREINO_A, "a_1") +
+        buildSession(TREINO_A, "a_2") +
+        buildSession(TREINO_A, "a_3");
+      document.getElementById("b-panels").innerHTML =
+        buildSession(TREINO_B, "b_1") + buildSession(TREINO_B, "b_2");
+
+      // ─── NAV ──────────────────────────────────────────────────────────────────────
+
+      function showMain(id, el) {
+        document
+          .querySelectorAll(".main-session")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .querySelectorAll(".main-tab")
+          .forEach((t) => t.classList.remove("active"));
+        document.getElementById("main-" + id).classList.add("active");
+        el.classList.add("active");
+      }
+
+      function showSess(train, num, el) {
+        const cont = document.getElementById("main-" + train);
+        cont
+          .querySelectorAll(".sess-panel")
+          .forEach((p) => p.classList.remove("active"));
+        cont
+          .querySelectorAll(".sess-tab")
+          .forEach((t) => t.classList.remove("active"));
+        const panel =
+          document.getElementById("sess-" + train + "_" + num) ||
+          document.getElementById("sess-" + train + "-" + num);
+        if (panel) panel.classList.add("active");
+        el.classList.add("active");
+        if (num === "sum") buildSummary(train);
+        else if (parseInt(num) >= 2) updateCompares(train + "_" + num, train);
+      }
+
+      // ─── COMPARE ──────────────────────────────────────────────────────────────────
+
+      function updateCompares(currentSess, train) {
+        const num = parseInt(currentSess.split("_")[1]);
+        if (num < 2) return;
+        const prevSess = train + "_" + (num - 1);
+        const treino = train === "a" ? TREINO_A : TREINO_B;
+        treino.blocks.forEach((block) => {
+          block.exercises.forEach((ex) => {
+            const cmpBox = document.getElementById(
+              `cmp-${currentSess}-${ex.id}`,
+            );
+            const cmpGrid = document.getElementById(
+              `cmpgrid-${currentSess}-${ex.id}`,
+            );
+            if (!cmpBox || !cmpGrid) return;
+            const prevWEl = document.getElementById(
+              `${prevSess}_${ex.id}_s1_w`,
+            );
+            const currWEl = document.getElementById(
+              `${currentSess}_${ex.id}_s1_w`,
+            );
+            const prevREl = document.getElementById(
+              `${prevSess}_${ex.id}_s1_r`,
+            );
+            const currREl = document.getElementById(
+              `${currentSess}_${ex.id}_s1_r`,
+            );
+            const prevW = prevWEl ? parseFloat(prevWEl.value) || null : null;
+            const currW = currWEl ? parseFloat(currWEl.value) || null : null;
+            const prevR = prevREl ? prevREl.value : null;
+            const currR = currREl ? currREl.value : null;
+            if (!prevW && !prevR) {
+              cmpBox.style.display = "none";
+              return;
+            }
+            cmpBox.style.display = "block";
+            let html = "";
+            if (prevW !== null) {
+              const diff = currW !== null ? currW - prevW : null;
+              const arrow =
+                diff === null
+                  ? ""
+                  : diff > 0
+                    ? '<span class="ci-arrow ci-up">↑</span>'
+                    : diff < 0
+                      ? '<span class="ci-arrow ci-down">↓</span>'
+                      : '<span class="ci-arrow ci-same">→</span>';
+              const dt =
+                diff === null
+                  ? ""
+                  : (diff > 0 ? "+" + diff : diff === 0 ? "igual" : diff) +
+                    " kg";
+              html += `<div class="compare-item"><span class="ci-label">Peso S1:</span><span class="ci-val">${prevW} → ${currW !== null ? currW : "?"} kg</span>${arrow}<span style="color:var(--muted);font-size:10px">${dt}</span></div>`;
+            }
+            if (prevR) {
+              html += `<div class="compare-item"><span class="ci-label">Reps S1:</span><span class="ci-val">${prevR} → ${currR || "?"}</span></div>`;
+            }
+            cmpGrid.innerHTML =
+              html ||
+              '<span style="color:var(--muted2)">Preenche esta sessão para ver comparativo</span>';
+          });
+        });
+      }
+
+      // ─── SUMMARY ──────────────────────────────────────────────────────────────────
+
+      function buildSummary(train) {
+        const treino = train === "a" ? TREINO_A : TREINO_B;
+        const sessions = train === "a" ? ["a_1", "a_2", "a_3"] : ["b_1", "b_2"];
+        const labels = train === "a" ? ["A1", "A2", "A3 (opt)"] : ["B1", "B2"];
+        const cont = document.getElementById("summary-" + train);
+        let html = "";
+        treino.blocks.forEach((block) => {
+          html += `<div class="block-title">${block.title}</div>`;
+          block.exercises.forEach((ex) => {
+            html += `<div class="ex-card" style="margin-bottom:10px">
+        <div style="padding:10px 16px 6px">
+          <div class="ex-num">${ex.num}</div>
+          <div class="ex-name">${ex.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Alvo: <span style="color:var(--accent2)">${ex.sets}× ${ex.repRange[0]}–${ex.repRange[1]} reps</span> · <span style="color:var(--accent3)">${ex.sugWeightDisplay}</span></div>
+        </div>
+        <div style="padding:8px 16px;border-top:1px solid var(--border);overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:400px">
+          <thead><tr>
+            <th style="text-align:left;color:var(--muted);font-size:10px;padding:4px 8px;border-bottom:1px solid var(--border);font-weight:500">Série</th>`;
+            sessions.forEach((s, i) => {
+              html += `<th style="text-align:center;color:var(--muted);font-size:10px;padding:4px 8px;border-bottom:1px solid var(--border);font-weight:500">${labels[i]}</th>`;
+            });
+            html += `</tr></thead><tbody>`;
+            for (let s = 1; s <= ex.sets; s++) {
+              const isLast = s === ex.sets;
+              const lab =
+                isLast && ex.setType === "lastRP" ? `S${s} ⚡` : `S${s}`;
+              html += `<tr><td style="padding:5px 8px;color:var(--muted2);border-bottom:1px solid var(--border)">${lab}</td>`;
+              sessions.forEach((sess) => {
+                const wEl = document.getElementById(`${sess}_${ex.id}_s${s}_w`);
+                const rEl = document.getElementById(`${sess}_${ex.id}_s${s}_r`);
+                const fEl = document.getElementById(`${sess}_${ex.id}_s${s}_f`);
+                const w = wEl ? wEl.value : "";
+                const r = rEl ? rEl.value : "";
+                const f = fEl ? fEl.value : "";
+                const fColor =
+                  f === "facil"
+                    ? "var(--teal)"
+                    : f === "ok"
+                      ? "var(--accent2)"
+                      : f === "dificil"
+                        ? "var(--amber)"
+                        : f === "falha"
+                          ? "var(--red)"
+                          : "var(--muted2)";
+                html += `<td style="padding:5px 8px;text-align:center;border-bottom:1px solid var(--border)">`;
+                if (w || r)
+                  html += `<span style="color:var(--accent3)">${w || "—"}</span><span style="color:var(--muted)"> kg × </span><span style="color:var(--text)">${r || "—"}</span>${f ? `<span style="color:${fColor};margin-left:4px;font-size:10px">${f}</span>` : ""}`;
+                else html += `<span style="color:var(--muted2)">—</span>`;
+                html += "</td>";
+              });
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+            // trend
+            const w1s = sessions
+              .map((s) => {
+                const el = document.getElementById(`${s}_${ex.id}_s1_w`);
+                return el ? parseFloat(el.value) || null : null;
+              })
+              .filter((v) => v !== null);
+            if (w1s.length >= 2) {
+              const diff = w1s[w1s.length - 1] - w1s[0];
+              const tc =
+                diff > 0
+                  ? "var(--teal)"
+                  : diff < 0
+                    ? "var(--red)"
+                    : "var(--muted)";
+              const tt =
+                diff > 0
+                  ? `↑ +${diff} kg em S1 ao longo da semana`
+                  : diff < 0
+                    ? `↓ ${diff} kg em S1`
+                    : "→ Carga estável em S1";
+              html += `<div style="margin-top:6px;font-size:11px;color:${tc}">${tt}</div>`;
+            }
+            html += "</div></div>";
+          });
+        });
+        cont.innerHTML = html;
+      }
+
+      // ─── SAVE / LOAD ──────────────────────────────────────────────────────────────
+
+      let saveTimer = null;
+      function autoSave() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          saveAll(true);
+        }, 600);
+      }
+
+      function saveAll(silent) {
+        const data = {};
+        document.querySelectorAll("[data-key]").forEach((el) => {
+          if (el.value && el.value.trim() !== "")
+            data[el.dataset.key] = el.value;
+        });
+        document.querySelectorAll("input[type=radio]:checked").forEach((r) => {
+          data["radio_" + r.name] = r.value;
+        });
+        localStorage.setItem("cal_v4", JSON.stringify(data));
+        if (!silent) {
+          const msg = document.getElementById("saved-msg");
+          msg.style.display = "block";
+          setTimeout(() => (msg.style.display = "none"), 2500);
+        }
+      }
+
+      function loadAll() {
+        const data = JSON.parse(localStorage.getItem("cal_v4") || "{}");
+        Object.keys(data).forEach((k) => {
+          if (k.startsWith("radio_")) {
+            const r = document.querySelector(
+              'input[type=radio][name="' +
+                k.slice(6) +
+                '"][value="' +
+                data[k] +
+                '"]',
+            );
+            if (r) {
+              r.checked = true;
+              // fire onMach manually if this radio has an onchange
+              if (r.getAttribute("onchange")) {
+                try {
+                  r.dispatchEvent(new Event("change", { bubbles: true }));
+                } catch (e) {}
+              }
+            }
+          } else {
+            const el = document.querySelector(`[data-key="${k}"]`);
+            if (el) {
+              el.value = data[k];
+              if (el.tagName === "SELECT")
+                el.classList.toggle("filled", el.value !== "");
+              else el.classList.add("filled");
+            }
+          }
+        });
+        up();
+      }
+
+      // attach auto-save to all inputs after render
+      document.addEventListener("input", (e) => {
+        if (e.target.matches("[data-key]")) autoSave();
+      });
+      document.addEventListener("change", (e) => {
+        if (e.target.matches("[data-key]")) autoSave();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+          e.preventDefault();
+          saveAll(false);
+        }
+      });
+
+      loadAll();
+      // activate first panels
+      document
+        .querySelectorAll("#main-a .sess-panel, #main-b .sess-panel")
+        .forEach((p) => p.classList.remove("active"));
+      const firstA = document.getElementById("sess-a_1");
+      const firstB = document.getElementById("sess-b_1");
+      if (firstA) firstA.classList.add("active");
+      if (firstB) firstB.classList.add("active");
+    </script>
+  </body>
+</html>
