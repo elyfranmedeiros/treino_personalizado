@@ -127,6 +127,16 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:1
 .sum-wk-labels{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-bottom:2px}
 .sum-wk-label{font-size:9px;text-align:center;color:var(--muted2);letter-spacing:.04em}
 .delta-chip{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;background:#1a2a0d;color:var(--teal);margin-left:6px}
+
+.mach-sel{padding:8px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mach-lbl{font-size:11px;color:var(--muted);flex-shrink:0}
+.mach-opt{display:flex;align-items:center;cursor:pointer}
+.mach-opt input[type=radio]{display:none}
+.mach-pill{font-size:10px;font-weight:500;padding:3px 10px;border-radius:16px;border:1px solid var(--border2);color:var(--muted);background:var(--bg3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.mach-opt input[type=radio]:checked+.mach-pill.mn{background:#0d2235;color:var(--accent2);border-color:var(--accent2)}
+.mach-opt input[type=radio]:checked+.mach-pill.mv{background:#2a1500;color:var(--accent3);border-color:var(--accent3)}
+.sug-sel-disp{font-size:11px;color:var(--muted);margin-left:auto}
+.sug-sel-disp span{color:var(--text);font-weight:500}
 </style>
 </head>
 <body>
@@ -187,23 +197,24 @@ const PHASES = {
 const TREINO_A = [
   {id:'a01',num:'A·01',name:'Supino Inclinado Máquina',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'',incremento:2.5,sensacao:'ok',prog:[42.5,42.5,45.0,45.0,47.5,47.5],note:'+2,5 kg cada lado',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg cada lado'},
   {id:'a02',num:'A·02',name:'Supino Reto — Chest Press',sets:'4×',reps:'10–12',tecnica:'—',maquina:'',incremento:2.5,sensacao:'dificil',prog:[75.0,75.0,75.0,77.5,77.5,80.0],note:'Difícil na calibração → mantém 3 semanas',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg'},
-  {id:'a03',num:'A·03',name:'Peck Deck / Voador',sets:'3×',reps:'12–15',tecnica:'⚡ Dropset · S3',maquina:'MN 40 kg · MV 42,5 kg',incremento:2.5,sensacao:'ok',prog:[40.0,40.0,42.5,42.5,45.0,45.0],note:'ref. 15 reps',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
-  {id:'a04',num:'A·04',name:'Crossover Polia Baixa',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'4,5 kg (15r) / 6,8 kg (12r)',incremento:1.0,sensacao:'ok',prog:[4.5,4.5,5.5,5.5,6.5,6.8],note:'exercício novo — progressão conservadora',progRule:'Atingiu 3×15 RIR ≥ 2 → +1 kg cada lado'},
-  {id:'a05',num:'A·05',name:'Delt Machine',sets:'3×',reps:'12–15',tecnica:'⚡ Parciais no fim',maquina:'',incremento:2.5,sensacao:'ok',prog:[25.0,25.0,27.5,27.5,30.0,30.0],note:'substituiu elevação lateral halteres',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
-  {id:'a06',num:'A·06',name:'Remada Alta — Barra W',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'',incremento:2.5,sensacao:'ok',prog:[27.5,27.5,30.0,30.0,32.5,32.5],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
-  {id:'a07',num:'A·07',name:'Pushdown — Corda',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'MN',incremento:2.5,sensacao:'ok',prog:[47.0,47.0,49.5,49.5,52.0,52.0],note:'trocado barra reta → corda',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg'},
-  {id:'a08',num:'A·08',name:'Tríceps Overhead — Polia',sets:'3×',reps:'10–12',tecnica:'—',maquina:'corda',incremento:2.5,sensacao:'dificil',prog:[24.9,24.9,24.9,24.9,27.5,27.5],note:'pesado para 12 reps — mantém 4 semanas',progRule:'Atingiu 3×12 RIR ≥ 2 → +2,5 kg'},
-  {id:'a09',num:'A·09',name:'Tríceps Unilateral — Polia',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'6,8 kg (15r) / 9,1 kg (12r)',incremento:1.0,sensacao:'ok',prog:[6.8,6.8,7.8,7.8,8.8,9.1],note:'ref. 15 reps',progRule:'Atingiu 3×15 RIR ≥ 2 → +1 kg'},
+  {id:'a03',num:'A·03',name:'Peck Deck / Voador',sets:'3×',reps:'12–15',tecnica:'⚡ Dropset · S3',maquina:'MN 40 kg · MV 42,5 kg',incremento:2.5,sensacao:'ok',prog:[40.0,40.0,42.5,42.5,45.0,45.0],note:'ref. 15 reps',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg',mach:{name:'pd_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Máquina:',smap:{mn:'MN → 40 kg',mv:'MV → 42,5 kg'},wmap:{mn:'40',mv:'42.5'}}},
+  {id:'a04',num:'A·04',name:'Crossover Polia Baixa',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'4,5–6,8 kg cada lado',incremento:1.0,sensacao:'ok',prog:[4.5,4.5,5.5,5.5,6.5,6.8],note:'exercício novo — progressão conservadora',progRule:'Atingiu 3×15 RIR ≥ 2 → +1 kg cada lado',mach:{name:'co_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → ref. 4,5–6,8 kg',mv:'MV → ref. 4,5–6,8 kg'},wmap:{mn:'4.5',mv:'4.5'}}},
+  {id:'a05',num:'A·05',name:'Desenvolvimento — Máquina',sets:'3×',reps:'10–12',tecnica:'—',maquina:'',incremento:2.5,sensacao:'ok',prog:[30.0,30.0,32.5,32.5,35.0,35.0],note:'',progRule:'Atingiu 3×12 RIR ≥ 2 → +2,5 kg'},
+  {id:'a06',num:'A·06',name:'Delt Machine',sets:'3×',reps:'12–15',tecnica:'⚡ Parciais no fim',maquina:'',incremento:2.5,sensacao:'ok',prog:[25.0,25.0,27.5,27.5,30.0,30.0],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
+  {id:'a07',num:'A·07',name:'Remada Alta — Barra W',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'',incremento:2.5,sensacao:'ok',prog:[27.5,27.5,30.0,30.0,32.5,32.5],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
+  {id:'a08',num:'A·08',name:'Pushdown — Corda',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'MN 22,5 kg · MV 25 kg',incremento:2.5,sensacao:'ok',prog:[22.5,22.5,25.0,25.0,27.5,27.5],note:'trocado barra reta → corda',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg',mach:{name:'pu_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → 22,5 kg',mv:'MV → 25 kg'},wmap:{mn:'22.5',mv:'25'}}},
+  {id:'a09',num:'A·09',name:'Tríceps Overhead — Polia',sets:'3×',reps:'10–12',tecnica:'—',maquina:'corda · 24,9 kg',incremento:2.5,sensacao:'dificil',prog:[24.9,24.9,24.9,24.9,27.5,27.5],note:'pesado para 12 reps — mantém 4 semanas',progRule:'Atingiu 3×12 RIR ≥ 2 → +2,5 kg',mach:{name:'oh_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → 24,9 kg',mv:'MV → ajusta pela sensação'},wmap:{mn:'24.9',mv:''}}},
+  {id:'a10',num:'A·10',name:'Tríceps Unilateral — Polia',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'6,8 kg (15r) / 9,1 kg (12r)',incremento:1.0,sensacao:'ok',prog:[6.8,6.8,7.8,7.8,8.8,9.1],note:'ref. 15 reps',progRule:'Atingiu 3×15 RIR ≥ 2 → +1 kg',mach:{name:'tu_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → 9,1 kg',mv:'MV → 6,8 kg'},wmap:{mn:'9.1',mv:'6.8'}}},
 ];
 
 const TREINO_B = [
-  {id:'b01',num:'B·01',name:'Puxada Aberta (Pulldown)',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'MN 59 kg',incremento:5.0,sensacao:'dificil',prog:[59.0,59.0,59.0,64.0,64.0,69.0],note:'+5 kg por incremento',progRule:'Atingiu 4×12 RIR ≥ 2 → +5 kg'},
+  {id:'b01',num:'B·01',name:'Puxada Aberta (Pulldown)',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'MN 59 kg · MV 68 kg',incremento:5.0,sensacao:'dificil',prog:[59.0,59.0,59.0,64.0,64.0,69.0],note:'+5 kg por incremento',progRule:'Atingiu 4×12 RIR ≥ 2 → +5 kg',mach:{name:'pa_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → 59 kg',mv:'MV → 68 kg'},wmap:{mn:'59',mv:'68'}}},
   {id:'b02',num:'B·02',name:'Remada Máquina (chest supported)',sets:'4×',reps:'10–12',tecnica:'—',maquina:'',incremento:2.5,sensacao:'ok',prog:[27.5,30.0,32.5,32.5,35.0,35.0],note:'exercício novo — adaptação rápida',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg'},
-  {id:'b03',num:'B·03',name:'Remada Baixa Polia',sets:'3×',reps:'12–15',tecnica:'⚡ Dropset · S3',maquina:'MN 36 kg',incremento:2.5,sensacao:'ok',prog:[36.0,36.0,38.5,38.5,41.0,41.0],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
-  {id:'b04',num:'B·04',name:'Pulldown Braço Estendido',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'MN 36–41 kg',incremento:2.5,sensacao:'ok',prog:[36.0,38.5,41.0,41.0,43.5,43.5],note:'já progrediu durante calibração',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
-  {id:'b05',num:'B·05',name:'Rosca Direta — EZ / Barra W',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'MV 22,7 kg',incremento:2.5,sensacao:'dificil',prog:[22.7,22.7,22.7,25.0,25.0,27.5],note:'falha em B1 — mantém 3 semanas',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg'},
-  {id:'b06',num:'B·06',name:'Rosca Inclinada — Polia MV',sets:'3×',reps:'10–12',tecnica:'⚡ Parciais no fim',maquina:'MV 6,8–9 kg',incremento:1.0,sensacao:'dificil',prog:[6.8,6.8,6.8,7.8,7.8,9.0],note:'difícil — progressão conservadora',progRule:'Atingiu 3×12 RIR ≥ 2 → +1 kg'},
-  {id:'b07',num:'B·07',name:'Rosca Martelo — Polia Corda',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'MN 32 kg',incremento:2.5,sensacao:'ok',prog:[32.0,34.5,34.5,37.0,37.0,39.5],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
+  {id:'b03',num:'B·03',name:'Remada Baixa Polia',sets:'3×',reps:'12–15',tecnica:'⚡ Dropset · S3',maquina:'MN 36 kg · MV 16 kg',incremento:2.5,sensacao:'ok',prog:[36.0,36.0,38.5,38.5,41.0,41.0],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg',mach:{name:'rb_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → 36 kg',mv:'MV → 16 kg'},wmap:{mn:'36',mv:'16'}}},
+  {id:'b04',num:'B·04',name:'Pulldown Braço Estendido',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'MN 36–41 kg · MV 17 kg',incremento:2.5,sensacao:'ok',prog:[36.0,38.5,41.0,41.0,43.5,43.5],note:'já progrediu durante calibração',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg',mach:{name:'be_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → 36–41 kg',mv:'MV → 17 kg'},wmap:{mn:'36',mv:'17'}}},
+  {id:'b05',num:'B·05',name:'Rosca Direta — EZ / Barra W',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'MV 22,7 kg · MN 40 kg',incremento:2.5,sensacao:'dificil',prog:[22.7,22.7,22.7,25.0,25.0,27.5],note:'falha em B1 — mantém 3 semanas',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg',mach:{name:'rd_maq',opts:[{v:'mv',cls:'mv',txt:'MV'},{v:'mn',cls:'mn',txt:'MN'}],label:'Academia:',smap:{mv:'MV → 22,7 kg',mn:'MN → 40 kg'},wmap:{mv:'22.7',mn:'40'}}},
+  {id:'b06',num:'B·06',name:'Rosca Inclinada — Polia',sets:'3×',reps:'10–12',tecnica:'⚡ Parciais no fim',maquina:'MV 6,8 kg · MN 9 kg',incremento:1.0,sensacao:'dificil',prog:[6.8,6.8,6.8,7.8,7.8,9.0],note:'difícil — progressão conservadora',progRule:'Atingiu 3×12 RIR ≥ 2 → +1 kg',mach:{name:'ri_maq',opts:[{v:'mv',cls:'mv',txt:'MV'},{v:'mn',cls:'mn',txt:'MN'}],label:'Polia:',smap:{mv:'MV → 6,8 kg',mn:'MN → 9 kg'},wmap:{mv:'6.8',mn:'9'}}},
+  {id:'b07',num:'B·07',name:'Rosca Martelo — Polia Corda',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'MN 32 kg · MV 17 kg',incremento:2.5,sensacao:'ok',prog:[32.0,34.5,34.5,37.0,37.0,39.5],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg',mach:{name:'rm_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → 32 kg',mv:'MV → 17 kg'},wmap:{mn:'32',mv:'17'}}},
 ];
 
 let currentWeekA = 1;
@@ -223,6 +234,38 @@ function renderPhase(train, week) {
   const p = PHASES[week];
   const el = document.getElementById('phase-'+train);
   el.innerHTML = `<span class="phase-tag ${p.cls}">${p.label}</span><span>${p.note}</span>`;
+}
+
+
+const MACH_REGISTRY = {};
+
+function buildMachSel(ex, week, train){
+  if(!ex.mach) return '';
+  const m = ex.mach;
+  const sid = train+'_w'+week+'_'+ex.id;
+  MACH_REGISTRY[sid] = {smap:m.smap||{}, wmap:m.wmap||{}};
+  const opts = m.opts.map(function(o){
+    return '<label class="mach-opt"><input type="radio" name="'+sid+'_mach" value="'+o.v+'" data-skey="'+sid+'_mach" data-sid="'+sid+'" data-train="'+train+'" data-exid="'+ex.id+'" data-week="'+week+'" onchange="onMachEv(this)"><span class="mach-pill '+o.cls+'">'+o.txt+'</span></label>';
+  }).join('');
+  return '<div class="mach-sel"><span class="mach-lbl">'+m.label+'</span>'+opts+'<span class="sug-sel-disp" id="sugd-'+sid+'">Seleciona</span></div>';
+}
+
+
+function onMachEv(el){
+  const sid=el.dataset.sid; const val=el.value;
+  const train=el.dataset.train; const exId=el.dataset.exid; const week=parseInt(el.dataset.week);
+  onMach(sid,val,train,exId,week);
+  autoSave();
+}
+function onMach(sid, val, train, exId, week){
+  const reg = MACH_REGISTRY[sid];
+  if(!reg) return;
+  const dispEl = document.getElementById('sugd-'+sid);
+  if(dispEl && reg.smap[val]) dispEl.innerHTML='<span>'+reg.smap[val]+'</span>';
+  if(reg.wmap[val] && reg.wmap[val]!==''){
+    const s1 = document.querySelector('[data-skey="'+train+'_w'+week+'_'+exId+'_s1_w"]');
+    if(s1){ s1.value=reg.wmap[val]; s1.classList.remove('filled'); s1.classList.add('auto'); autoSave(); }
+  }
 }
 
 let saveTimer = null;
@@ -245,9 +288,13 @@ function applyLoad(data){
   document.querySelectorAll('[data-skey]').forEach(el=>{
     const v=data[el.dataset.skey];
     if(!v) return;
-    el.value=v;
-    if(el.tagName==='SELECT') el.classList.toggle('filled',v!=='');
-    else el.classList.add('filled');
+    if(el.type==='radio'){
+      if(el.value===v){ el.checked=true; el.dispatchEvent(new Event('change',{bubbles:true})); }
+    } else {
+      el.value=v;
+      if(el.tagName==='SELECT') el.classList.toggle('filled',v!=='');
+      else el.classList.add('filled');
+    }
   });
   updateHasData();
   // re-evaluate all progressions
@@ -256,8 +303,9 @@ function applyLoad(data){
     exList.forEach(ex=>{
       const setsNum = parseInt(ex.sets);
       const rMax = parseInt((ex.reps.split('–')[1]||ex.reps.split('–')[0]));
+      const rMin = parseInt(ex.reps.split('–')[0]);
       const nextW = wk<6 ? ex.prog[wk] : null;
-      evalProgression(tr,ex.id,wk,setsNum,rMax,ex.tecnica,nextW);
+      evalProgression(tr,ex.id,wk,setsNum,rMin,rMax,ex.tecnica,nextW);
     });
   });
 }
@@ -271,8 +319,12 @@ function updateHasData(){
 function repsOpts(min,max,isRP,isPartials,isDrop){
   let o='<option value="">— reps</option>';
   if(isRP){
-    for(let r=min;r<=max;r++) o+=`<option value="${r}">${r}</option>`;
-    o+='<option value="rp">Personalizado</option>';
+    // Rest pause format: X + Y + Z (normal reps + 1st pause reps + 2nd pause reps)
+    for(let r=min;r<=max;r++)
+      for(let y=2;y<=6;y++)
+        for(let z=1;z<=4;z++)
+          o+='<option value="'+r+'+'+y+'+'+z+'">'+r+' + '+y+' + '+z+'</option>';
+    for(let r=min;r<=max;r++) o+='<option value="'+r+'">'+r+' (sem rest pause)</option>';
   } else if(isPartials){
     for(let r=min;r<=max;r++) for(let p=2;p<=6;p++) o+=`<option value="${r}+${p}p">${r}+${p}p</option>`;
     for(let r=min;r<=max;r++) o+=`<option value="${r}">${r} (sem parciais)</option>`;
@@ -319,9 +371,9 @@ function buildSeriesSec(ex, week, train){
 
     rows+='<div class="series-row" style="position:relative">'
       +'<div class="s-num">'+sLabel+'</div>'
-      +'<input class="s-inp '+autoCls+'" type="number" step="0.5" value="'+autoVal+'" data-skey="'+wKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" oninput="this.classList.add(\'filled\');this.classList.remove(\'auto\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'
-      +'<select class="s-sel" data-skey="'+rKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+rOpts+'</select>'
-      +'<select class="s-sel" data-skey="'+fKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+sensOpts()+'</select>'
+      +'<input class="s-inp '+autoCls+'" type="number" step="0.5" value="'+autoVal+'" data-skey="'+wKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" oninput="this.classList.add(\'filled\');this.classList.remove(\'auto\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'
+      +'<select class="s-sel" data-skey="'+rKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+rOpts+'</select>'
+      +'<select class="s-sel" data-skey="'+fKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+sensOpts()+'</select>'
       +(countsForProg ? '<div class="s-rowcheck" id="'+checkId+'"></div>' : '')
       +'</div>';
   }
@@ -329,7 +381,9 @@ function buildSeriesSec(ex, week, train){
   const progId = train+'_w'+week+'_'+ex.id+'_prog';
   const nextW = week < 6 ? ex.prog[week] : null;
 
-  return '<div class="series-sec">'
+  const machHtml = buildMachSel(ex, week, train);
+  return (machHtml ? machHtml : '')
+    +'<div class="series-sec">'
     +'<div class="series-hdr"><span></span><span>Peso (kg)</span><span>Reps</span><span>Sensação</span></div>'
     +rows
     +'<textarea class="notes-inp" data-skey="'+train+'_w'+week+'_'+ex.id+'_notes" placeholder="Notas..." oninput="autoSave()"></textarea>'
@@ -340,84 +394,94 @@ function buildSeriesSec(ex, week, train){
     +'</div>';
 }
 
-function evalProgression(train, exId, week, setsNum, rMax, tecnica, nextWeight){
+function evalProgression(train, exId, week, setsNum, rMin, rMax, tecnica, nextWeight){
   const isRP = tecnica.includes('Rest pause');
   const isDrop = tecnica.includes('Dropset');
   const progId = train+'_w'+week+'_'+exId+'_prog';
   const progEl = document.getElementById(progId);
   if(!progEl) return;
-
-  const rMin = rMax - 2;
   const GOOD_SENS = ['facil','ok'];
   const ANY_OK = ['facil','ok','dificil'];
-  let anyFilled = false;
-  let allFilled = true;
-  let seriesData = [];
+  let anyFilled=false; let allFilled=true; let seriesData=[];
 
   for(let s=1;s<=setsNum;s++){
-    const isLastS = s===setsNum;
-    const skip = (isRP&&isLastS)||(isDrop&&isLastS);
-    const wKey = train+'_w'+week+'_'+exId+'_s'+s+'_w';
-    const rKey = train+'_w'+week+'_'+exId+'_s'+s+'_r';
-    const fKey = train+'_w'+week+'_'+exId+'_s'+s+'_f';
-    const wEl = document.querySelector('[data-skey="'+wKey+'"]');
-    const rEl = document.querySelector('[data-skey="'+rKey+'"]');
-    const fEl = document.querySelector('[data-skey="'+fKey+'"]');
-    const checkEl = document.getElementById(train+'_w'+week+'_'+exId+'_s'+s+'_check');
+    const isLastS=s===setsNum;
+    const skip=(isRP&&isLastS)||(isDrop&&isLastS);
+    const wKey=train+'_w'+week+'_'+exId+'_s'+s+'_w';
+    const rKey=train+'_w'+week+'_'+exId+'_s'+s+'_r';
+    const fKey=train+'_w'+week+'_'+exId+'_s'+s+'_f';
+    const wEl=document.querySelector('[data-skey="'+wKey+'"]');
+    const rEl=document.querySelector('[data-skey="'+rKey+'"]');
+    const fEl=document.querySelector('[data-skey="'+fKey+'"]');
+    const checkEl=document.getElementById(train+'_w'+week+'_'+exId+'_s'+s+'_check');
     if(!rEl||!fEl) continue;
-    if(skip){ if(checkEl){checkEl.className='s-rowcheck';checkEl.textContent='';} continue; }
+    if(skip){if(checkEl){checkEl.className='s-rowcheck';checkEl.textContent='';} continue;}
     const rVal=rEl.value; const fVal=fEl.value;
     const wVal=wEl?parseFloat(wEl.value)||null:null;
-    if(!rVal||!fVal){ allFilled=false; if(checkEl){checkEl.className='s-rowcheck';checkEl.textContent='';} seriesData.push({filled:false,weight:wVal}); continue; }
+    if(!rVal||!fVal){
+      allFilled=false;
+      if(checkEl){checkEl.className='s-rowcheck';checkEl.textContent='';}
+      seriesData.push({filled:false,weight:wVal,checkEl:checkEl});
+      continue;
+    }
     anyFilled=true;
-    seriesData.push({filled:true, reps:parseInt(rVal.split('+')[0]), sens:fVal, weight:wVal, checkEl:checkEl});
+    seriesData.push({filled:true,reps:parseInt(rVal.split('+')[0]),sens:fVal,weight:wVal,checkEl:checkEl});
   }
 
   if(!anyFilled){
     progEl.className='prog-indicator prog-incomplete';
-    progEl.innerHTML='<span class="prog-icon">○</span><span>Preenche as séries para avaliar progressão'+(nextWeight&&week<6?' — próxima semana prevista: <span class=\"prog-next-w\">'+nextWeight+' kg</span>':'')+'</span>';
+    progEl.innerHTML='<span class="prog-icon">○</span><span>Preenche as séries para avaliar progressão'+(nextWeight&&week<6?' — próxima semana prevista: <span class="prog-next-w">'+nextWeight+' kg</span>':'')+'</span>';
     return;
   }
-  const filled = seriesData.filter(s=>s.filled);
-  const unfilled = seriesData.filter(s=>!s.filled).length;
+
+  const filled=seriesData.filter(function(s){return s.filled;});
+  const unfilled=seriesData.filter(function(s){return !s.filled;}).length;
+
   if(unfilled>0){
     progEl.className='prog-indicator prog-incomplete';
     progEl.innerHTML='<span class="prog-icon">◑</span><span>Completa todas as séries para avaliar ('+filled.length+'/'+(filled.length+unfilled)+')</span>';
     return;
   }
 
-  // Reference weight = highest used
-  const weights = filled.map(s=>s.weight).filter(w=>w!==null&&!isNaN(w));
-  const refW = weights.length ? Math.max(...weights) : null;
+  // Reference weight = highest weight used
+  const weights=filled.map(function(s){return s.weight;}).filter(function(w){return w!==null&&!isNaN(w);});
+  const refW=weights.length?Math.max.apply(null,weights):null;
 
   let passed=0; let failReasons=[];
+
   filled.forEach(function(s,i){
-    const lowerThanRef = refW!==null && s.weight!==null && s.weight < refW-0.1;
-    const higherThanFirst = i>0 && filled[0].weight!==null && s.weight!==null && s.weight > filled[0].weight+0.1;
-    let ok = false;
-    if(lowerThanRef){
-      ok=false; failReasons.push('S'+(i+1)+': carga inferior ('+s.weight+'<'+refW+')');
-    } else if(higherThanFirst){
-      ok = s.reps>=rMin && ANY_OK.includes(s.sens);
-      if(!ok) failReasons.push('S'+(i+1)+': carga maior mas '+s.reps+' reps/'+s.sens);
-    } else {
+    const isLowerThanRef = refW!==null && s.weight!==null && s.weight < refW-0.1;
+    const isAtRef = !isLowerThanRef;
+    let ok=false;
+
+    if(isLowerThanRef){
+      // Lower weight series: normal rule (rMax + Fácil/Ok)
       ok = s.reps>=rMax && GOOD_SENS.includes(s.sens);
-      if(!ok) failReasons.push('S'+(i+1)+': '+s.reps+'/'+rMax+' ou '+s.sens);
+      if(!ok) failReasons.push('S'+(i+1)+': carga leve mas '+s.reps+'/'+rMax+' reps ou '+s.sens);
+    } else {
+      // At reference weight: relaxed rule (rMin + not Falha)
+      ok = s.reps>=rMin && ANY_OK.includes(s.sens);
+      if(!ok) failReasons.push('S'+(i+1)+': '+s.reps+' reps / '+s.sens);
     }
-    if(s.checkEl){ s.checkEl.className='s-rowcheck '+(ok?'ok':'warn'); s.checkEl.textContent=ok?'✓':'!'; }
+
+    if(s.checkEl){
+      s.checkEl.style.opacity='1';
+      s.checkEl.className='s-rowcheck '+(ok?'ok':'warn');
+      s.checkEl.textContent=ok?'✓':'!';
+    }
     if(ok) passed++;
   });
 
-  const allOk = passed===filled.length;
-  const actualNext = (refW&&refW>parseFloat(nextWeight||0)+0.1) ? refW : nextWeight;
+  const allOk=passed===filled.length;
+  const actualNext=(refW&&refW>parseFloat(nextWeight||0)+0.1)?refW:nextWeight;
 
   if(allOk){
     progEl.className='prog-indicator prog-unlock';
-    const msg = week<6 ? ' — próxima semana: <span class=\"prog-next-w\">'+actualNext+' kg</span>' : ' — última semana, prepara retorno à fase tensiva';
+    const msg=week<6?' — próxima semana: <span class="prog-next-w">'+actualNext+' kg</span>':' — última semana, prepara retorno à fase tensiva';
     progEl.innerHTML='<span class="prog-icon">✓</span><span>Progressão desbloqueada'+msg+'</span>';
   } else {
     progEl.className='prog-indicator prog-locked';
-    const reason = failReasons.length ? ' ('+failReasons[0]+')':'';
+    const reason=failReasons.length?' ('+failReasons[0]+')':'';
     progEl.innerHTML='<span class="prog-icon">✕</span><span>Mantém '+nextWeight+' kg — '+passed+'/'+filled.length+' séries passaram'+reason+'</span>';
   }
 }
@@ -428,7 +492,7 @@ function renderExercises(train, week) {
   const saved = loadSaved();
 
   const blocks = train==='a'
-    ? [{title:'Peito',ids:['a01','a02','a03','a04']},{title:'Ombros',ids:['a05','a06']},{title:'Tríceps',ids:['a07','a08','a09']}]
+    ? [{title:'Peito',ids:['a01','a02','a03','a04']},{title:'Ombros',ids:['a05','a06','a07']},{title:'Tríceps',ids:['a08','a09','a10']}]
     : [{title:'Costas',ids:['b01','b02','b03','b04']},{title:'Bíceps',ids:['b05','b06','b07']}];
 
   let html = '';
