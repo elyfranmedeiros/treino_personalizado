@@ -197,7 +197,7 @@ const PHASES = {
 const TREINO_A = [
   {id:'a01',num:'A·01',name:'Supino Inclinado Máquina',sets:'4×',reps:'10–12',tecnica:'⚡ Rest pause · S4',maquina:'',incremento:2.5,sensacao:'ok',prog:[42.5,42.5,45.0,45.0,47.5,47.5],note:'+2,5 kg cada lado',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg cada lado'},
   {id:'a02',num:'A·02',name:'Supino Reto — Chest Press',sets:'4×',reps:'10–12',tecnica:'—',maquina:'',incremento:2.5,sensacao:'dificil',prog:[75.0,75.0,75.0,77.5,77.5,80.0],note:'Difícil na calibração → mantém 3 semanas',progRule:'Atingiu 4×12 RIR ≥ 2 → +2,5 kg'},
-  {id:'a03',num:'A·03',name:'Peck Deck / Voador',sets:'3×',reps:'12–15',tecnica:'⚡ Dropset · S3',maquina:'MN 40 kg · MV 42,5 kg',incremento:2.5,sensacao:'ok',prog:[40.0,40.0,42.5,42.5,45.0,45.0],note:'ref. 15 reps',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg',mach:{name:'pd_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Máquina:',smap:{mn:'MN → 40 kg',mv:'MV → 42,5 kg'},wmap:{mn:'40',mv:'42.5'}}},
+  {id:'a03',num:'A·03',name:'Peck Deck / Voador',sets:'3×',reps:'12–15',tecnica:'⚡ Dropset · S3',maquina:'MN 40 kg · MV 42,5 kg',incremento:2.5,sensacao:'ok',prog:[40.0,40.0,42.5,42.5,45.0,45.0],note:'ref. 15 reps',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg',mach:{name:'pd_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Máquina:',smap:{mn:'MN → 40 kg',mv:'MV → 42,5 kg'},wmap:{mn:'40',mv:'43'}}},
   {id:'a04',num:'A·04',name:'Crossover Polia Baixa',sets:'3×',reps:'12–15',tecnica:'⚡ Pump set',maquina:'4,5–6,8 kg cada lado',incremento:1.0,sensacao:'ok',prog:[4.5,4.5,5.5,5.5,6.5,6.8],note:'exercício novo — progressão conservadora',progRule:'Atingiu 3×15 RIR ≥ 2 → +1 kg cada lado',mach:{name:'co_maq',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],label:'Polia:',smap:{mn:'MN → ref. 4,5–6,8 kg',mv:'MV → ref. 4,5–6,8 kg'},wmap:{mn:'4.5',mv:'4.5'}}},
   {id:'a05',num:'A·05',name:'Desenvolvimento — Máquina',sets:'3×',reps:'10–12',tecnica:'—',maquina:'',incremento:2.5,sensacao:'ok',prog:[30.0,30.0,32.5,32.5,35.0,35.0],note:'',progRule:'Atingiu 3×12 RIR ≥ 2 → +2,5 kg'},
   {id:'a06',num:'A·06',name:'Delt Machine',sets:'3×',reps:'12–15',tecnica:'⚡ Parciais no fim',maquina:'',incremento:2.5,sensacao:'ok',prog:[25.0,25.0,27.5,27.5,30.0,30.0],note:'',progRule:'Atingiu 3×15 RIR ≥ 2 → +2,5 kg'},
@@ -252,10 +252,64 @@ function buildMachSel(ex, week, train){
 
 
 function onMachEv(el){
-  const sid=el.dataset.sid; const val=el.value;
-  const train=el.dataset.train; const exId=el.dataset.exid; const week=parseInt(el.dataset.week);
-  onMach(sid,val,train,exId,week);
+  const sid = el.dataset.sid;
+  const val = el.value;
+  const train = el.dataset.train;
+  const exId = el.dataset.exid;
+  const week = parseInt(el.dataset.week);
+
+  // 1. Save everything currently visible before switching
   autoSave();
+
+  // 2. Update display label and S1 suggested weight
+  onMach(sid, val, train, exId, week);
+
+  // 3. Update all series skeys to use machine suffix and reload saved values
+  const card = el.closest('.ex-card');
+  if(!card) return;
+  const saved = loadSaved();
+
+  card.querySelectorAll('[data-base-skey]').forEach(function(inp){
+    if(inp.type==='radio') return;
+    const baseKey = inp.dataset.baseSkey;
+    const machKey = baseKey + '_' + val;
+    inp.dataset.skey = machKey;
+
+    const savedVal = saved[machKey];
+    if(savedVal !== undefined && savedVal !== ''){
+      inp.value = savedVal;
+      if(inp.tagName==='SELECT') inp.classList.toggle('filled', true);
+      else { inp.classList.add('filled'); inp.classList.remove('auto'); }
+    } else {
+      // No saved value for this machine
+      if(inp.classList.contains('auto-candidate')){
+        const reg = MACH_REGISTRY[sid];
+        if(reg && reg.wmap && reg.wmap[val] && reg.wmap[val]!==''){
+          inp.value = reg.wmap[val];
+          inp.classList.remove('filled');
+          inp.classList.add('auto');
+        } else {
+          inp.value = '';
+          inp.classList.remove('filled','auto');
+        }
+      } else {
+        if(inp.tagName==='SELECT'){ inp.value=''; inp.classList.remove('filled'); }
+        else { inp.value=''; inp.classList.remove('filled'); }
+      }
+    }
+  });
+
+  // 4. Re-evaluate progression
+  const ex = findEx(train, exId);
+  if(ex){
+    const repsRange = ex.reps.split('–').map(Number);
+    evalProgression(train, exId, week, parseInt(ex.sets), repsRange[0], repsRange[1]||repsRange[0], ex.tecnica, ex.prog[Math.min(week,5)]);
+  }
+}
+
+function findEx(train, exId){
+  const list = train==='a' ? TREINO_A : TREINO_B;
+  return list.find(function(e){ return e.id===exId; }) || null;
 }
 function onMach(sid, val, train, exId, week){
   const reg = MACH_REGISTRY[sid];
@@ -270,14 +324,15 @@ function onMach(sid, val, train, exId, week){
 
 let saveTimer = null;
 function autoSave(){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(()=>{
-    const data={};
-    document.querySelectorAll('[data-skey]').forEach(el=>{
-      if(el.value&&el.value.trim()!=='') data[el.dataset.skey]=el.value;
-    });
-    try{ localStorage.setItem('plan6w',JSON.stringify(data)); }catch(e){}
-  },500);
+  // Immediate save — no timer
+  const data = loadSaved();
+  document.querySelectorAll('[data-skey]').forEach(function(el){
+    if(el.type==='radio') return;
+    if(el.value && el.value.trim()!==''){
+      data[el.dataset.skey] = el.value;
+    }
+  });
+  try{ localStorage.setItem('plan6w', JSON.stringify(data)); }catch(e){}
 }
 function loadSaved(){
   let data={};
@@ -285,26 +340,32 @@ function loadSaved(){
   return data;
 }
 function applyLoad(data){
-  document.querySelectorAll('[data-skey]').forEach(el=>{
+  document.querySelectorAll('[data-skey]').forEach(function(el){
+    if(el.type==='radio') return;
     const v=data[el.dataset.skey];
     if(!v) return;
-    if(el.type==='radio'){
-      if(el.value===v){ el.checked=true; el.dispatchEvent(new Event('change',{bubbles:true})); }
-    } else {
-      el.value=v;
-      if(el.tagName==='SELECT') el.classList.toggle('filled',v!=='');
-      else el.classList.add('filled');
+    el.value=v;
+    if(el.tagName==='SELECT') el.classList.toggle('filled',v!=='');
+    else { el.classList.add('filled'); if(el.classList.contains('auto')) el.classList.remove('auto'); }
+  });
+  // Restore radio selections
+  Object.keys(data).forEach(function(k){
+    if(k.endsWith('_mach')){
+      const r=document.querySelector('input[type=radio][data-skey="'+k+'"][value="'+data[k]+'"]');
+      if(r){ r.checked=true; r.dispatchEvent(new Event('change',{bubbles:true})); }
     }
   });
   updateHasData();
-  // re-evaluate all progressions
-  const trainA = TREINO_A; const trainB = TREINO_B;
-  [['a',trainA,currentWeekA],['b',trainB,currentWeekB]].forEach(([tr,exList,wk])=>{
-    exList.forEach(ex=>{
-      const setsNum = parseInt(ex.sets);
-      const rMax = parseInt((ex.reps.split('–')[1]||ex.reps.split('–')[0]));
-      const rMin = parseInt(ex.reps.split('–')[0]);
-      const nextW = wk<6 ? ex.prog[wk] : null;
+  // Re-evaluate ALL progressions after load
+  ['a','b'].forEach(function(tr){
+    const list = tr==='a' ? TREINO_A : TREINO_B;
+    const wk = tr==='a' ? currentWeekA : currentWeekB;
+    list.forEach(function(ex){
+      const repsRange = ex.reps.split('–').map(Number);
+      const rMin=repsRange[0];
+      const rMax=repsRange[1]||repsRange[0];
+      const setsNum=parseInt(ex.sets);
+      const nextW=wk<6?ex.prog[wk]:null;
       evalProgression(tr,ex.id,wk,setsNum,rMin,rMax,ex.tecnica,nextW);
     });
   });
@@ -344,6 +405,91 @@ function sensOpts(){
   <option value="falha">Falha — RIR 0</option>`;
 }
 
+
+// Returns the weight to pre-fill for S1 of a given week, based on previous week result
+function getCarryWeight(ex, week, train){
+  if(week <= 1) return ex.prog[0]; // week 1: always use prog array
+  const prevWeek = week - 1;
+  const saved = loadSaved();
+
+  // Find reference weight from previous week (highest weight used in counting series)
+  const setsNum = parseInt(ex.sets);
+  const isRP = ex.tecnica.includes('Rest pause');
+  const isDrop = ex.tecnica.includes('Dropset');
+  const allInputs = [];
+  const allSelects = [];
+
+  // Read prev week values from localStorage directly (DOM may not exist)
+  const prevWeights = [];
+  const prevReps = [];
+  const prevSens = [];
+  const repsRange = ex.reps.split('–').map(Number);
+  const rMin = repsRange[0];
+  const rMax = repsRange[1]||repsRange[0];
+  const GOOD_SENS = ['facil','ok'];
+  const ANY_OK = ['facil','ok','dificil'];
+
+  let anyData = false;
+
+  for(let s=1;s<=setsNum;s++){
+    const isLastS = s===setsNum;
+    const skip = (isRP&&isLastS)||(isDrop&&isLastS);
+    if(skip) continue;
+    // Try both with and without machine suffix
+    let wVal = null; let rVal = null; let fVal = null;
+    ['','_mn','_mv','_default'].forEach(function(sfx){
+      const wk = train+'_w'+prevWeek+'_'+ex.id+'_s'+s+'_w'+sfx;
+      const rk = train+'_w'+prevWeek+'_'+ex.id+'_s'+s+'_r'+sfx;
+      const fk = train+'_w'+prevWeek+'_'+ex.id+'_s'+s+'_f'+sfx;
+      if(saved[wk] && !wVal) wVal = parseFloat(saved[wk]);
+      if(saved[rk] && !rVal) rVal = saved[rk];
+      if(saved[fk] && !fVal) fVal = saved[fk];
+    });
+    if(wVal||rVal||fVal) anyData = true;
+    prevWeights.push(wVal);
+    prevReps.push(rVal ? parseInt(rVal.split('+')[0]) : null);
+    prevSens.push(fVal);
+  }
+
+  if(!anyData) return ex.prog[week-1]; // no data → use prog array
+
+  // Reference weight = highest used
+  const validW = prevWeights.filter(function(w){return w!==null&&!isNaN(w);});
+  if(!validW.length) return ex.prog[week-1];
+  const refW = Math.max.apply(null, validW);
+  const firstW = prevWeights.find(function(w){return w!==null;});
+
+  // Evaluate if progression was achieved (same logic as evalProgression)
+  let passed = 0; let total = 0;
+  prevWeights.forEach(function(w,i){
+    if(w===null||prevReps[i]===null||prevSens[i]===null) return;
+    total++;
+    const isLower = refW!==null && w < refW-0.1;
+    let ok = false;
+    if(isLower){
+      ok = prevReps[i]>=rMax && GOOD_SENS.includes(prevSens[i]);
+    } else {
+      const isHigher = firstW!==null && w > firstW+0.1;
+      if(isHigher){
+        ok = prevReps[i]>=rMin && ANY_OK.includes(prevSens[i]);
+      } else {
+        ok = prevReps[i]>=rMax && GOOD_SENS.includes(prevSens[i]);
+      }
+    }
+    if(ok) passed++;
+  });
+
+  const progressed = total > 0 && passed === total;
+
+  if(progressed){
+    // Use real weight + increment
+    return Math.round((refW + ex.incremento) * 100) / 100;
+  } else {
+    // Maintain real weight
+    return refW;
+  }
+}
+
 function buildSeriesSec(ex, week, train){
   const repsRange = ex.reps.split('–').map(Number);
   const [rMin,rMax] = [repsRange[0], repsRange[1]||repsRange[0]];
@@ -364,16 +510,26 @@ function buildSeriesSec(ex, week, train){
     const wKey = train+'_w'+week+'_'+ex.id+'_s'+s+'_w';
     const rKey = train+'_w'+week+'_'+ex.id+'_s'+s+'_r';
     const fKey = train+'_w'+week+'_'+ex.id+'_s'+s+'_f';
-    const autoVal = s===1 ? baseWeightStr : '';
+    const carryW = s===1 ? getCarryWeight(ex, week, train) : null;
+    const autoVal = s===1 ? (carryW !== null ? carryW : baseWeightStr) : '';
     const autoCls = s===1 ? 'auto' : '';
     const rOpts = repsOpts(rMin,rMax,isRPSet,isPartials,isDropSet);
     const checkId = train+'_w'+week+'_'+ex.id+'_s'+s+'_check';
 
+    // If exercise has mach selector, use base key + machine will be appended by onMachEv
+    const hasMach = !!ex.mach;
+    const baseWKey = train+'_w'+week+'_'+ex.id+'_s'+s+'_w';
+    const baseRKey = train+'_w'+week+'_'+ex.id+'_s'+s+'_r';
+    const baseFKey = train+'_w'+week+'_'+ex.id+'_s'+s+'_f';
+    const machAttrsW = hasMach ? 'data-base-skey="'+baseWKey+'" '+(s===1?'class="s-inp '+autoCls+' auto-candidate"':'class="s-inp '+autoCls+'"') : 'class="s-inp '+autoCls+'"';
+    const machAttrsR = hasMach ? 'data-base-skey="'+baseRKey+'"' : '';
+    const machAttrsF = hasMach ? 'data-base-skey="'+baseFKey+'"' : '';
+
     rows+='<div class="series-row" style="position:relative">'
       +'<div class="s-num">'+sLabel+'</div>'
-      +'<input class="s-inp '+autoCls+'" type="number" step="0.5" value="'+autoVal+'" data-skey="'+wKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" oninput="this.classList.add(\'filled\');this.classList.remove(\'auto\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'
-      +'<select class="s-sel" data-skey="'+rKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+rOpts+'</select>'
-      +'<select class="s-sel" data-skey="'+fKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+sensOpts()+'</select>'
+      +'<input '+machAttrsW+' type="number" step="0.5" value="'+autoVal+'" data-skey="'+wKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" oninput="this.classList.add(\'filled\');this.classList.remove(\'auto\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'
+      +'<select '+machAttrsR+' class="s-sel" data-skey="'+rKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+rOpts+'</select>'
+      +'<select '+machAttrsF+' class="s-sel" data-skey="'+fKey+'" data-ex="'+ex.id+'" data-train="'+train+'" data-week="'+week+'" onchange="this.classList.toggle(\'filled\',this.value!==\'\');autoSave();evalProgression(\''+train+'\',\''+ex.id+'\','+week+','+setsNum+','+rMin+','+rMax+',\''+ex.tecnica+'\','+ex.prog[Math.min(week,5)]+');">'+sensOpts()+'</select>'
       +(countsForProg ? '<div class="s-rowcheck" id="'+checkId+'"></div>' : '')
       +'</div>';
   }
@@ -405,19 +561,29 @@ function evalProgression(train, exId, week, setsNum, rMin, rMax, tecnica, nextWe
   let anyFilled=false; let allFilled=true; let seriesData=[];
 
   for(let s=1;s<=setsNum;s++){
-    const isLastS=s===setsNum;
-    const skip=(isRP&&isLastS)||(isDrop&&isLastS);
-    const wKey=train+'_w'+week+'_'+exId+'_s'+s+'_w';
-    const rKey=train+'_w'+week+'_'+exId+'_s'+s+'_r';
-    const fKey=train+'_w'+week+'_'+exId+'_s'+s+'_f';
-    const wEl=document.querySelector('[data-skey="'+wKey+'"]');
-    const rEl=document.querySelector('[data-skey="'+rKey+'"]');
-    const fEl=document.querySelector('[data-skey="'+fKey+'"]');
-    const checkEl=document.getElementById(train+'_w'+week+'_'+exId+'_s'+s+'_check');
+    const isLastS = s===setsNum;
+    const skip = (isRP&&isLastS)||(isDrop&&isLastS);
+
+    // Look up elements by data-ex + data-week + series position
+    // This works regardless of machine suffix in data-skey
+    const allInputs = document.querySelectorAll('input[data-ex="'+exId+'"][data-train="'+train+'"][data-week="'+week+'"]');
+    const allSelects = document.querySelectorAll('select[data-ex="'+exId+'"][data-train="'+train+'"][data-week="'+week+'"]');
+
+    // Series s corresponds to index s-1 in inputs and (s-1)*2, (s-1)*2+1 in selects
+    const wEl = allInputs[s-1] || null;
+    const rEl = allSelects[(s-1)*2] || null;
+    const fEl = allSelects[(s-1)*2+1] || null;
+
+    // checkEl still uses fixed id
+    const checkId = train+'_w'+week+'_'+exId+'_s'+s+'_check';
+    const checkEl = document.getElementById(checkId);
+
     if(!rEl||!fEl) continue;
-    if(skip){if(checkEl){checkEl.className='s-rowcheck';checkEl.textContent='';} continue;}
+    if(skip){ if(checkEl){checkEl.className='s-rowcheck';checkEl.textContent='';} continue; }
+
     const rVal=rEl.value; const fVal=fEl.value;
     const wVal=wEl?parseFloat(wEl.value)||null:null;
+
     if(!rVal||!fVal){
       allFilled=false;
       if(checkEl){checkEl.className='s-rowcheck';checkEl.textContent='';}
@@ -443,27 +609,28 @@ function evalProgression(train, exId, week, setsNum, rMin, rMax, tecnica, nextWe
     return;
   }
 
-  // Reference weight = highest weight used
   const weights=filled.map(function(s){return s.weight;}).filter(function(w){return w!==null&&!isNaN(w);});
   const refW=weights.length?Math.max.apply(null,weights):null;
+  const firstW=filled[0].weight;
 
   let passed=0; let failReasons=[];
 
   filled.forEach(function(s,i){
     const isLowerThanRef = refW!==null && s.weight!==null && s.weight < refW-0.1;
-    const isAtRef = !isLowerThanRef;
     let ok=false;
-
     if(isLowerThanRef){
-      // Lower weight series: normal rule (rMax + Fácil/Ok)
       ok = s.reps>=rMax && GOOD_SENS.includes(s.sens);
       if(!ok) failReasons.push('S'+(i+1)+': carga leve mas '+s.reps+'/'+rMax+' reps ou '+s.sens);
     } else {
-      // At reference weight: relaxed rule (rMin + not Falha)
-      ok = s.reps>=rMin && ANY_OK.includes(s.sens);
-      if(!ok) failReasons.push('S'+(i+1)+': '+s.reps+' reps / '+s.sens);
+      const isHigherThanFirst = firstW!==null && s.weight!==null && s.weight > firstW+0.1;
+      if(isHigherThanFirst){
+        ok = s.reps>=rMin && ANY_OK.includes(s.sens);
+        if(!ok) failReasons.push('S'+(i+1)+': '+s.reps+' reps / '+s.sens);
+      } else {
+        ok = s.reps>=rMax && GOOD_SENS.includes(s.sens);
+        if(!ok) failReasons.push('S'+(i+1)+': '+s.reps+'/'+rMax+' reps ou '+s.sens);
+      }
     }
-
     if(s.checkEl){
       s.checkEl.style.opacity='1';
       s.checkEl.className='s-rowcheck '+(ok?'ok':'warn');
@@ -551,7 +718,7 @@ function renderExercises(train, week) {
   });
 
   container.innerHTML = html;
-  applyLoad(saved);
+  applyLoad(loadSaved());
 }
 
 function setWeek(train, week, el) {
