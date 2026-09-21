@@ -4,11 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0f0f0f">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Fase Tensiva — Tracking</title>
+<title>Fase de Força</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
 :root{
@@ -65,6 +62,7 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:1
 .ex-meta{display:flex;flex-wrap:wrap;gap:4px}
 .badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
 .b-sets{background:#1e2a1a;color:var(--teal);border:1px solid #2a3d22}
+.b-forca{background:#1a1a2e;color:var(--purple);border:1px solid #2d2244}
 .b-rest{background:#1e1e1e;color:var(--muted);border:1px solid var(--border2)}
 .b-iso{background:#2a1e0a;color:var(--amber);border:1px solid #3d2d0a}
 .ex-note-small{font-size:10px;color:var(--muted);margin-top:4px}
@@ -140,6 +138,8 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:1
 .settings-btn:hover{border-color:var(--border)}
 .settings-btn.danger{color:var(--red);border-color:#2a1010}
 .settings-info{font-size:11px;color:var(--muted);line-height:1.6;margin-top:6px}
+.phase-banner{background:linear-gradient(135deg,#1a1a2e,#0f0f0f);border:1px solid #2d2244;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--purple);line-height:1.7}
+.phase-banner strong{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -147,8 +147,8 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:1
 <!-- HEADER -->
 <div class="app-header">
   <div>
-    <div class="app-title">Fase Tensiva</div>
-    <div class="app-sub">A/B · 6 Semanas</div>
+    <div class="app-title">Fase de Força</div>
+    <div class="app-sub">A/B · 4 Semanas · 3–6 reps</div>
   </div>
   <div class="header-right">
     <button class="icon-btn" onclick="showPage('settings',this)">⚙</button>
@@ -228,10 +228,10 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:1
     <div class="settings-card">
       <div class="settings-title">Fase actual</div>
       <div class="settings-info">
-        <strong style="color:var(--text)">Fase Tensiva</strong> · Rep range 6–10 (compostos) / 8–12 (isolados)<br>
+        <strong style="color:var(--text)">Fase de Força</strong> · Rep range 3–6 (compostos) / 8–12 (quebra de platô)<br>
         Sequência semanal: A · B · As · B · A · Bs<br>
-        Descanso: 90s compostos · 75s compostos secundários · 60s isolados<br>
-        Cardio (short days): A Short → caminhada 20min · B Short → elíptico 10min + caminhada 10min
+        Descanso: 2–3 min compostos · 60–75s isolados/quebra de platô<br>
+        Sem técnicas avançadas nos compostos principais — foco em carga máxima progressiva
       </div>
     </div>
     <div class="settings-card">
@@ -269,51 +269,47 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:1
 const SEQ=['A','B','As','B','A','Bs'];
 const MACH_REG={};
 
-const TREINO_A=[
-  {id:'a01',num:'A·01',grp:'Peito',name:'Supino Inclinado Halteres',sets:4,reps:'6–10',rest:'90s',sug:'34 kg cada halter',inc:2,note:'Composto principal — foco clavicular'},
-  {id:'a02',num:'A·02',grp:'Peito',name:'Supino Reto — Chest Press',sets:4,reps:'6–10',rest:'90s',sug:'75 kg',inc:2.5,note:'Composto secundário — densidade geral'},
-  {id:'a03',num:'A·03',grp:'Peito',name:'Crucifixo Inclinado',sets:3,reps:'8–12',rest:'60s',sug:'20 kg cada halter',inc:2,iso:true,note:'Isolado superior — quebra platô'},
-  {id:'a04',num:'A·04',grp:'Peito',name:'Squeeze Press Reto',sets:3,reps:'8–12',rest:'60s',sug:'22 kg cada halter',inc:2,iso:true,note:'Isolado esternal — contração isométrica'},
-  {id:'a05',num:'A·05',grp:'Ombro',name:'Desenvolvimento — Máquina',sets:3,reps:'6–10',rest:'75s',sug:'22,5 kg cada lado',inc:2.5,note:'Deltóide anterior'},
-  {id:'a06',num:'A·06',grp:'Ombro',name:'Elevação Lateral na Polia',sets:3,reps:'10–12',rest:'60s',sug:'MN 9 kg · MV 4,5 kg',inc:1,note:'Deltóide medial — tensão constante',mach:{name:'el',label:'Polia:',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],smap:{mn:'MN → 9 kg',mv:'MV → 4,5 kg'},wmap:{mn:'9',mv:'4.5'}}},
-  {id:'a07',num:'A·07',grp:'Ombro',name:'Face Pull na Polia',sets:3,reps:'12–15',rest:'60s',sug:'18 kg',inc:2.5,note:'Deltóide posterior + rotação externa'},
-  {id:'a08',num:'A·08',grp:'Trapézio',name:'Shrug — Halteres',sets:3,reps:'8–12',rest:'60s',sug:'20 kg cada halter',inc:2,note:'Isométrico 2s no topo'},
-  {id:'a09',num:'A·09',grp:'Tríceps',name:'Pushdown — Corda',sets:3,reps:'8–12',rest:'75s',sug:'24,9 kg',inc:2.5,note:'Cabeças lateral e medial'},
-  {id:'a10',num:'A·10',grp:'Tríceps',name:'Overhead — Halter (2 mãos, sentado)',sets:3,reps:'8–12',rest:'75s',sug:'22,5 kg',inc:2.5,note:'Cabeça longa — alongamento máximo'},
-  {id:'a11',num:'A·11',grp:'Tríceps',name:'Extensão Unilateral — Polia',sets:3,reps:'10–12',rest:'60s',sug:'9,5 kg',inc:1,iso:true,note:'Cabeça longa em contração — quebra platô'},
-];
-const TREINO_AS=[
-  {id:'as01',num:'AS·01',grp:'Peito',name:'Supino Inclinado Halteres',sets:2,reps:'6–10',rest:'60s',sug:'34 kg cada halter',inc:2},
-  {id:'as02',num:'AS·02',grp:'Peito',name:'Supino Reto — Chest Press',sets:2,reps:'6–10',rest:'60s',sug:'75 kg',inc:2.5},
-  {id:'as03',num:'AS·03',grp:'Peito',name:'Crucifixo Inclinado',sets:2,reps:'8–12',rest:'45s',sug:'20 kg cada halter',inc:2,iso:true},
-  {id:'as04',num:'AS·04',grp:'Ombro',name:'Desenvolvimento — Máquina',sets:2,reps:'6–10',rest:'60s',sug:'22,5 kg cada lado',inc:2.5},
-  {id:'as05',num:'AS·05',grp:'Ombro',name:'Elevação Lateral na Polia',sets:2,reps:'10–12',rest:'45s',sug:'MN 9 kg · MV 4,5 kg',inc:1,mach:{name:'el_s',label:'Polia:',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],smap:{mn:'MN → 9 kg',mv:'MV → 4,5 kg'},wmap:{mn:'9',mv:'4.5'}}},
-  {id:'as06',num:'AS·06',grp:'Tríceps',name:'Pushdown — Corda',sets:2,reps:'8–12',rest:'45s',sug:'24,9 kg',inc:2.5},
-  {id:'as07',num:'AS·07',grp:'Tríceps',name:'Overhead — Halter (sentado)',sets:2,reps:'8–12',rest:'45s',sug:'22,5 kg',inc:2.5},
-];
-const TREINO_B=[
-  {id:'b01',num:'B·01',grp:'Costas',name:'Puxada Aberta (Pulldown)',sets:4,reps:'6–10',rest:'90s',sug:'64 kg',inc:5,note:'Largura — prioridade #1'},
-  {id:'b02',num:'B·02',grp:'Costas',name:'Remada Unilateral — Halter',sets:4,reps:'8–10',rest:'75s',sug:'24 kg cada lado',inc:2,note:'Espessura + amplitude máxima'},
-  {id:'b03',num:'B·03',grp:'Costas',name:'Remada Baixa Polia (pegada neutra)',sets:3,reps:'8–12',rest:'75s',sug:'64 kg',inc:2.5,note:'Espessura dorsal inferior'},
-  {id:'b04',num:'B·04',grp:'Costas',name:'Pulldown Braço Estendido',sets:3,reps:'10–12',rest:'60s',sug:'MN 41 kg · MV 18 kg',inc:2.5,iso:true,note:'Isolado dorsal puro — quebra platô',mach:{name:'pb',label:'Polia:',opts:[{v:'mn',cls:'mn',txt:'MN'},{v:'mv',cls:'mv',txt:'MV'}],smap:{mn:'MN → 41 kg',mv:'MV → 18 kg'},wmap:{mn:'41',mv:'18'}}},
-  {id:'b05',num:'B·05',grp:'Bíceps',name:'Rosca Direta — EZ / Barra W',sets:3,reps:'8–10',rest:'75s',sug:'24,9 kg',inc:2.5,note:'Massa geral — composto base'},
-  {id:'b06',num:'B·06',grp:'Bíceps',name:'Rosca Inclinada — Halteres',sets:3,reps:'8–10',rest:'75s',sug:'12 kg cada halter',inc:2,note:'Cabeça longa — pré-estiramento máximo'},
-  {id:'b07',num:'B·07',grp:'Bíceps',name:'Rosca Concentrada',sets:3,reps:'10–12',rest:'60s',sug:'10 kg',inc:1,iso:true,note:'Cabeça longa em contração — quebra platô'},
-];
-const TREINO_BS=[
-  {id:'bs01',num:'BS·01',grp:'Costas',name:'Puxada Aberta (Pulldown)',sets:2,reps:'6–10',rest:'60s',sug:'64 kg',inc:5},
-  {id:'bs02',num:'BS·02',grp:'Costas',name:'Remada Unilateral — Halter',sets:2,reps:'8–10',rest:'60s',sug:'24 kg cada lado',inc:2},
-  {id:'bs03',num:'BS·03',grp:'Costas',name:'Remada Baixa Polia',sets:2,reps:'8–12',rest:'45s',sug:'64 kg',inc:2.5},
-  {id:'bs04',num:'BS·04',grp:'Bíceps',name:'Rosca Direta — EZ / Barra W',sets:2,reps:'8–10',rest:'60s',sug:'24,9 kg',inc:2.5},
-  {id:'bs05',num:'BS·05',grp:'Bíceps',name:'Rosca Inclinada — Halteres',sets:2,reps:'8–10',rest:'45s',sug:'12 kg cada halter',inc:2},
-];
-const TRAINS={a:TREINO_A,as:TREINO_AS,b:TREINO_B,bs:TREINO_BS};
+const TRAINS={
+  a:[
+    {id:'a01',num:'A·01',grp:'Peito',name:'Supino Inclinado Máquina',sets:5,reps:'3–6',rest:'3 min',sug:'57,5 kg cada lado',inc:2.5,forca:true,note:'Composto principal — foco clavicular'},
+    {id:'a02',num:'A·02',grp:'Peito',name:'Supino Reto — Chest Press',sets:4,reps:'3–6',rest:'2–3 min',sug:'95 kg',inc:2.5,forca:true,note:'Composto secundário — densidade geral'},
+    {id:'a03',num:'A·03',grp:'Peito',name:'Crucifixo Polia Baixa',sets:3,reps:'10–12',rest:'75s',sug:'6,8 kg cada lado',inc:1,iso:true,note:'Quebra platô — isolamento clavicular'},
+    {id:'a04',num:'A·04',grp:'Ombro',name:'Desenvolvimento — Máquina',sets:4,reps:'3–6',rest:'2–3 min',sug:'32,5 kg cada lado',inc:2.5,forca:true,note:'Deltóide anterior — carga máxima'},
+    {id:'a05',num:'A·05',grp:'Ombro',name:'Elevação Lateral — Halter',sets:3,reps:'8–12',rest:'60s',sug:'12 kg cada halter',inc:2,note:'Deltóide medial — complementar'},
+    {id:'a06',num:'A·06',grp:'Tríceps',name:'Pushdown — Barra Reta',sets:4,reps:'3–6',rest:'2–3 min',sug:'34 kg',inc:2.5,forca:true,note:'Cabeças lateral e medial — carga máxima'},
+    {id:'a07',num:'A·07',grp:'Tríceps',name:'Tríceps Coice — Polia',sets:3,reps:'10–12',rest:'60s',sug:'6,8 kg',inc:1,iso:true,note:'Quebra platô — contração máxima'},
+    {id:'a08',num:'A·08',grp:'Trapézio',name:'Shrug — Halteres',sets:3,reps:'8–12',rest:'60s',sug:'28 kg cada halter',inc:2,note:'Isométrico 2s no topo'},
+  ],
+  as:[
+    {id:'as01',num:'AS·01',grp:'Peito',name:'Supino Inclinado Máquina',sets:2,reps:'3–6',rest:'2 min',sug:'57,5 kg cada lado',inc:2.5,forca:true},
+    {id:'as02',num:'AS·02',grp:'Peito',name:'Supino Reto — Chest Press',sets:2,reps:'3–6',rest:'2 min',sug:'95 kg',inc:2.5,forca:true},
+    {id:'as03',num:'AS·03',grp:'Peito',name:'Crucifixo Polia Baixa',sets:2,reps:'10–12',rest:'60s',sug:'6,8 kg cada lado',inc:1,iso:true},
+    {id:'as04',num:'AS·04',grp:'Ombro',name:'Desenvolvimento — Máquina',sets:2,reps:'3–6',rest:'2 min',sug:'32,5 kg cada lado',inc:2.5,forca:true},
+    {id:'as05',num:'AS·05',grp:'Ombro',name:'Elevação Lateral — Halter',sets:2,reps:'8–12',rest:'45s',sug:'12 kg cada halter',inc:2},
+    {id:'as06',num:'AS·06',grp:'Tríceps',name:'Pushdown — Barra Reta',sets:2,reps:'3–6',rest:'2 min',sug:'34 kg',inc:2.5,forca:true},
+    {id:'as07',num:'AS·07',grp:'Tríceps',name:'Tríceps Coice — Polia',sets:2,reps:'10–12',rest:'45s',sug:'6,8 kg',inc:1,iso:true},
+  ],
+  b:[
+    {id:'b01',num:'B·01',grp:'Costas',name:'Puxada Aberta (Pulldown)',sets:4,reps:'3–6',rest:'2–3 min',sug:'83 kg',inc:5,forca:true,note:'Largura — prioridade #1'},
+    {id:'b02',num:'B·02',grp:'Costas',name:'Remada Cavalinho (chest supported)',sets:4,reps:'3–6',rest:'2–3 min',sug:'52,5 kg',inc:2.5,forca:true,note:'Espessura — pegada neutra'},
+    {id:'b03',num:'B·03',grp:'Costas',name:'Remada Baixa Polia',sets:3,reps:'10–12',rest:'75s',sug:'73 kg',inc:2.5,iso:true,note:'Quebra platô — dorsal inferior'},
+    {id:'b04',num:'B·04',grp:'Bíceps',name:'Rosca Direta — Barra Reta',sets:4,reps:'3–6',rest:'2–3 min',sug:'34 kg',inc:2.5,forca:true,note:'Amplitude total — carga máxima'},
+    {id:'b05',num:'B·05',grp:'Bíceps',name:'Rosca Martelo — Polia Corda',sets:3,reps:'8–12',rest:'60s',sug:'18,1 kg',inc:1,note:'Desenho lateral — abertura da corda no topo (squeeze)'},
+  ],
+  bs:[
+    {id:'bs01',num:'BS·01',grp:'Costas',name:'Puxada Aberta (Pulldown)',sets:2,reps:'3–6',rest:'2 min',sug:'83 kg',inc:5,forca:true},
+    {id:'bs02',num:'BS·02',grp:'Costas',name:'Remada Cavalinho',sets:2,reps:'3–6',rest:'2 min',sug:'52,5 kg',inc:2.5,forca:true},
+    {id:'bs03',num:'BS·03',grp:'Costas',name:'Remada Baixa Polia',sets:2,reps:'10–12',rest:'60s',sug:'73 kg',inc:2.5,iso:true},
+    {id:'bs04',num:'BS·04',grp:'Bíceps',name:'Rosca Direta — Barra Reta',sets:2,reps:'3–6',rest:'2 min',sug:'34 kg',inc:2.5,forca:true},
+    {id:'bs05',num:'BS·05',grp:'Bíceps',name:'Rosca Martelo — Polia Corda',sets:2,reps:'8–12',rest:'45s',sug:'18,1 kg',inc:1},
+  ],
+};
 
 // ══════════════════════════════════════════════════════════════
 // STORAGE
 // ══════════════════════════════════════════════════════════════
-const SK='tensiva_app';
-const SK_CAL='tensiva_cal';
+const SK='forca_app_v2';
+const SK_CAL='forca_cal';
 function ldT(){try{return JSON.parse(localStorage.getItem(SK)||'{}');}catch(e){return {};}}
 function svT(d){try{localStorage.setItem(SK,JSON.stringify(d));}catch(e){}}
 function ldC(){try{return JSON.parse(localStorage.getItem(SK_CAL)||'{}');}catch(e){return {};}}
@@ -422,7 +418,7 @@ function renderTrain(containerId,tr){
   if(!container)return;
   const blocks={};
   list.forEach(ex=>{if(!blocks[ex.grp])blocks[ex.grp]=[];blocks[ex.grp].push(ex);});
-  let html='';
+  let html='<div class="phase-banner">⚡ <strong>Fase de Força</strong> · Rep range 3–6 nos compostos · Descanso 2–3 min · Foco em carga máxima progressiva</div>';
   Object.keys(blocks).forEach(grp=>{
     html+='<div class="block-title">'+grp+'</div>';
     blocks[grp].forEach(ex=>{
@@ -436,7 +432,8 @@ function renderTrain(containerId,tr){
         +'<div class="ex-meta">'
         +'<span class="badge b-sets">'+ex.sets+'× · '+ex.reps+'</span>'
         +'<span class="badge b-rest">'+ex.rest+'</span>'
-        +(ex.iso?'<span class="badge b-iso">quebra platô</span>':'')
+        +(ex.forca?'<span class="badge b-forca">⚡ Força</span>':'')
+        +(ex.iso?'<span class="badge b-iso">Quebra platô</span>':'')
         +'</div>'
         +(ex.note?'<div class="ex-note-small">'+ex.note+'</div>':'')
         +'</div>'
